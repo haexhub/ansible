@@ -1,0 +1,16 @@
+---
+- name: create user haex with sudo group
+  user:
+    name: haex
+    groups:
+    - wheel
+    state: present
+    shell: /bin/bash
+
+- name: set pub key for haex
+  assemble:
+    dest: /home/haex/.ssh/authorized_keys
+    src: roles/users/haex/files/
+    remote_src: no
+    mode: 0644
+

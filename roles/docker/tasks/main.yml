@@ -1,0 +1,26 @@
+---
+- name: add docker-ce repo
+  yum_repository:
+    name: docker-ce
+    description: docker-ce YUM repo
+    baseurl: https://download.docker.com/linux/fedora/$releasever/$basearch/stable/
+    state: present
+    gpgcheck: no
+
+- name: install docker yum and dependencies
+  yum:
+    name: 
+      - containerd.io
+      - docker-ce
+      - docker-ce-cli
+      - docker-compose
+      - python3-pip
+    state: latest
+    update_cache: true
+
+- name: install docker pip and dependencies
+  pip:
+    name:
+      - docker
+      - docker-compose
+  

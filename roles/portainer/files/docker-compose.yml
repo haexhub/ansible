@@ -1,0 +1,37 @@
+version: '3.7'
+
+services: 
+  portainer:
+    restart: unless-stopped
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    hostname: portainer
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+      - portainer_data:/data
+    networks:
+      - web
+    ports: 
+      - 127.0.0.1:19443:9443
+      - 127.0.0.1:19000:9000
+      - 127.0.0.1:18000:8000
+    labels: 
+      - traefik.enable=true
+      - traefik.http.routers.portainer.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
+      - traefik.http.routers.portainer.rule=Host(`portainer.${HOSTNAME}`)
+      - traefik.http.routers.portainer_secure.rule=Host(`portainer.${HOSTNAME}`)
+      - traefik.http.routers.portainer_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
+      - traefik.http.routers.portainer_secure.tls.certresolver=le
+      - traefik.http.services.portainer.loadbalancer.server.port=9000
+    command: 
+      --admin-password "${ADMIN_PASSWORD}"
+
+volumes: 
+  portainer_data:
+    name: portainer_data
+
+networks:
+  web:
+    name: web
+    external: true

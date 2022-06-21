@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    hostname: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - KILL
+      - NET_BIND_SERVICE
+      - DAC_READ_SEARCH
+    ports:
+      - 80:80
+      - 443:443
+      - 127.0.0.1:1080:8080
+    networks:
+      - web
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/localtime:/etc/localtime:ro
+      - traefik_data:/etc/traefik/
+    command: 
+      --api.insecure
+      --providers.docker
+      --providers.docker.exposedByDefault=false
+
+      --entrypoints.${TRAEFIK_HTTP_ENDPOINT}.address=:80
+      --entrypoints.${TRAEFIK_HTTPS_ENDPOINT}.address=:443
+
+      --certificatesresolvers.le.acme.email=hexxx@ok.de
+      --certificatesresolvers.le.acme.storage=acme.json
+      --certificatesresolvers.le.acme.httpchallenge.entrypoint=${TRAEFIK_HTTP_ENDPOINT}
+      --certificatesresolvers.le.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+      --certificatesresolvers.le.acme.storage=/etc/traefik/acme.json
+      # https://acme-v02.api.letsencrypt.org/directory
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.traefik.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
+      - traefik.http.routers.traefik.rule=Host(`traefik.${HOSTNAME}`)
+      - traefik.http.routers.traefik_secure.rule=Host(`traefik.${HOSTNAME}`)
+      - traefik.http.routers.traefik_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
+      - traefik.http.routers.traefik_secure.tls.certresolver=le
+      - traefik.http.services.traefik.loadbalancer.server.port=8080
+
+networks:
+  web:
+    driver: bridge
+    name: web
+    external: true
+
+volumes:
+  traefik_data:
+    name: traefik_data

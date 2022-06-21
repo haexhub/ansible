@@ -1,0 +1,7 @@
+---
+- name: configure ssh daemon
+  copy:
+    dest: /etc/ssh/sshd_config
+    src: roles/ssh/files/sshd_config
+    remote_src: no
+    mode: u=rw,g=r,o=r

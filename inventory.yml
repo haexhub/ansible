@@ -1,0 +1,37 @@
+---
+all:
+  hosts:
+    xintero.de:
+      hostname: xintero.de
+      traefik:
+        http_endpoint: web
+        https_endpoint: web_secure
+
+    haex.space:
+      hostname: haex.space
+
+      traefik:
+        http_endpoint: web
+        https_endpoint: web_secure
+      
+      seafile: 
+        admin_email: hexxx@ok.de
+        lang: de_DE.UTF-8
+        language: de_DE.de
+        lc_all: de_DE.UTF-8
+        timezone: 'Europe/Berlin'
+      
+      lldap:
+        uid: 1000
+        gid: 1000
+        base_dn: 'dc=haex, dc=space'
+
+      openldap:
+        add_schemas: yes
+        admin_username: haex
+        base_dn: 'dc=haex,dc=space'
+        extra_schemas: 'cosine, inetorgperson, nis'
+        group: readers
+        port_number: 3890
+        user_dc: users
+        users: 'arthur'

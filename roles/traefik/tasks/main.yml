@@ -1,0 +1,24 @@
+--- 
+- name: create network
+  include_tasks:
+    file: create_network.yml
+
+- name: set traefik env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/traefik/.env
+    create: yes
+    marker: '#{mark} Ansible set environment'
+    block: |
+      HOSTNAME={{ hostname }}
+      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
+      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+
+- name: place traefik docker-compose file in the right directory
+  copy:
+    src: roles/traefik/files/docker-compose.yml
+    dest: /usr/share/docker/traefik/docker-compose.yml
+
+- name: start traefik container
+  community.docker.docker_compose:
+    project_src: /usr/share/docker/traefik/
+    state: present

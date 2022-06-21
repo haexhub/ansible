@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  openldap:
+    image: bitnami/openldap:latest
+    hostname: openldap
+    networks: 
+      - ldap
+    ports:
+      - '${LDAP_PORT_NUMBER}:3890'
+      - '1636:1636'
+    volumes:
+      - openldap_data:/bitnami/openldap
+      - ./ldifs:/bitnami/openldap/ldifs/
+    environment:
+      - LDAP_ADD_SCHEMAS=${LDAP_ADD_SCHEMAS}
+      - LDAP_ADMIN_PASSWORD=${LDAP_ADMIN_PASSWORD}
+      - LDAP_ADMIN_USERNAME=${LDAP_ADMIN_USERNAME}
+      - LDAP_EXTRA_SCHEMAS=${LDAP_EXTRA_SCHEMAS}
+      - LDAP_GROUP=${LDAP_GROUP}
+      - LDAP_PASSWORDS=${LDAP_PASSWORDS}
+      - LDAP_PORT_NUMBER=${LDAP_PORT_NUMBER}
+      - LDAP_ROOT=${LDAP_ROOT}
+      - LDAP_USER_DC=${LDAP_USER_DC}
+      - LDAP_USERS=${LDAP_USERS}
+      #- LDAP_CUSTOM_LDIF_DIR=/bitnami/openldap/ldifs
+
+volumes:
+  openldap_data:
+    name: openldap_data
+    external: true
+
+networks:
+  ldap:
+    driver: bridge

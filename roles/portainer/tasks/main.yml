@@ -1,0 +1,21 @@
+---
+- name: create portainer env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/portainer/.env
+    create: yes
+    marker: '#{mark} Ansible set environment'
+    block: |
+      ADMIN_PASSWORD={{ secrets.portainer.admin_password}}
+      HOSTNAME={{ hostname }}
+      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
+      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+
+- name: place portainer docker-compose file in the right directory
+  copy:
+    src: roles/portainer/files/docker-compose.yml
+    dest: /usr/share/docker/portainer/docker-compose.yml
+    
+- name: start portainer container
+  community.docker.docker_compose:
+    project_src: /usr/share/docker/portainer
+    state: present

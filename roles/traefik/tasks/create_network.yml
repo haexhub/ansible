@@ -1,0 +1,4 @@
+---
+- name: create traefik default network
+  community.docker.docker_network:
+    name: web

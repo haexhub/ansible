@@ -1,0 +1,49 @@
+--- 
+- name: create seafile env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/seafile/.env
+    create: yes
+    marker: '#{mark} Ansible set environment'
+    block: |
+      HOSTNAME={{ hostname }}
+      SEAFILE_ADMIN_EMAIL={{ seafile.admin_email }}
+      SEAFILE_ADMIN_PASSWORD={{ secrets.seafile.admin_password }}
+      SEAFILE_DB_ROOT_PASSWORD={{ secrets.seafile.db_root_password }}
+      SEAFILE_LANG={{ seafile.lang }}
+      SEAFILE_LANGUAGE={{ seafile.language }}
+      SEAFILE_LC_ALL={{ seafile.lc_all }}
+      SEAFILE_TIMEZONE={{ seafile.timezone }}
+      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
+      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+
+- name: place seafile docker-compose file in the right directory
+  copy:
+    src: roles/seafile/files/docker-compose.yml
+    dest: /usr/share/docker/seafile/docker-compose.yml
+      
+- name: start seafile container 1st time
+  community.docker.docker_compose:
+    project_src: /usr/share/docker/seafile
+    state: present
+
+- name: stop seafile container
+  community.docker.docker_compose:
+    project_src: /usr/share/docker/seafile
+    state: absent
+
+- name: create seafile ldap conf
+  ansible.builtin.blockinfile:
+    path: /var/lib/docker/volumes/seafile_data/_data/seafile/conf/ccnet.conf 
+    marker: '#{mark} Ansible set environment'
+    block: |
+      [LDAP]
+      HOST = ldap://openldap:1389
+      BASE = ou=users,dc=haex,dc=space
+      USER_DN = cn=admin,dc=haex,dc=space
+      PASSWORD = {{ secrets.openldap.admin_password }}
+      LOGIN_ATTR = mail
+
+- name: start seafile container again
+  community.docker.docker_compose:
+    project_src: /usr/share/docker/seafile
+    state: present

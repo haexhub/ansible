@@ -1,0 +1,41 @@
+services:
+  lldap:
+    image: nitnelave/lldap:stable
+    container_name: lldap
+    hostname: lldap
+    # Change this to the user:group you want.
+    user: ${LLDAP_UID}:${LLDAP_GID}
+    networks:
+      - web
+    ports:
+      # For LDAP
+      - 3890:3890
+      # For the web front-end
+      - 17170:17170
+    volumes:
+      - lldap_data:/data
+    environment:
+      - LLDAP_JWT_SECRET=${LLDAP_JWT_SECRET}
+      - LLDAP_LDAP_USER_PASS=${LLDAP_LDAP_USER_PASS}
+      - LLDAP_LDAP_BASE_DN=${LLDAP_LDAP_BASE_DN}
+    labels:
+      - traefik.enable=true
+
+      - traefik.http.routers.lldap.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
+      - traefik.http.routers.lldap.rule=Host(`ldap.${HOSTNAME}`)
+
+      - traefik.http.routers.lldap_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
+      - traefik.http.routers.lldap_secure.rule=Host(`ldap.${HOSTNAME}`)
+      - traefik.http.routers.lldap_secure.tls.certresolver=le
+
+      - traefik.http.services.lldap.loadbalancer.server.port=17170
+
+
+volumes:
+  lldap_data:
+    name: lldap_data
+    external: true
+
+networks:
+  web:
+    external: true
