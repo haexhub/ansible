@@ -1,0 +1,11 @@
+{
+  "name": "isogitcorsserver",
+  "version": "1.0.0",
+  "main": "server.js",
+  "author": "haex",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "@isomorphic-git/cors-proxy": "^2.7.1"
+  }
+}

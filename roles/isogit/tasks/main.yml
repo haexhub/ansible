@@ -1,0 +1,20 @@
+---
+- name: create isogit cors server env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/isogit/.env
+    create: yes
+    marker: '#{mark} Ansible set environment'
+    block: |
+      HOSTNAME={{ hostname }}
+      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
+      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+
+- name: place isogit cors server files in the right directory
+  copy:
+    src: roles/isogit/files/
+    dest: /usr/share/docker/isogit/
+    
+- name: start isogit_cors_server container
+  community.docker.docker_compose:
+    project_src: /usr/share/docker/isogit
+    state: present
