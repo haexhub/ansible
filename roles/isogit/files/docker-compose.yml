@@ -4,10 +4,10 @@ services:
   isogit:
     restart: unless-stopped
     build: 
-      context: /usr/share/docker/isogit_cors_server
+      context: /usr/share/docker/isogit
       dockerfile: Dockerfile
-    container_name: isogit_cors_server
-    hostname: isogit_cors_server
+    container_name: isogit
+    hostname: isogit
     networks:
       - web
     ports: 

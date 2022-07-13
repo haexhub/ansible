@@ -11,10 +11,10 @@
 
 - name: place isogit cors server files in the right directory
   copy:
-    src: roles/isogit/files/
-    dest: /usr/share/docker/isogit/
+    src: roles/isogit/files
+    dest: /usr/share/docker/isogit
     
-- name: start isogit_cors_server container
+- name: start isogit container
   community.docker.docker_compose:
-    project_src: /usr/share/docker/isogit
+    project_src: /usr/share/docker/isogi
     state: present
