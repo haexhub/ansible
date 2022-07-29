@@ -1,0 +1,27 @@
+version: '3.7'
+
+services: 
+  cos:
+    restart: unless-stopped
+    build: 
+      context: /usr/share/docker/cos
+      dockerfile: Dockerfile
+    container_name: cos
+    hostname: cos
+    networks:
+      - web
+    ports: 
+      - 127.0.0.1:4001:4173
+    labels: 
+      - traefik.enable=true
+      - traefik.http.routers.cos.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
+      - traefik.http.routers.cos.rule=Host(`cos.${HOSTNAME}`)
+      - traefik.http.routers.cos_secure.rule=Host(`cos.${HOSTNAME}`)
+      - traefik.http.routers.cos_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
+      - traefik.http.routers.cos_secure.tls.certresolver=le
+      - traefik.http.services.cos.loadbalancer.server.port=4173
+
+networks: 
+ web:
+    name: web
+    external: true
