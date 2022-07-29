@@ -1,0 +1,20 @@
+---
+- name: create cos env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/cos/.env
+    create: yes
+    marker: '#{mark} Ansible set environment'
+    block: |
+      HOSTNAME={{ hostname }}
+      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
+      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+
+- name: place cos docker-compose file in the right directory
+  copy:
+    src: roles/cos/files/docker-compose.yml
+    dest: /usr/share/docker/cos/docker-compose.yml
+    
+- name: start cos container
+  community.docker.docker_compose:
+    project_src: /usr/share/docker/cos
+    state: present
