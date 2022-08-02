@@ -35,9 +35,9 @@ services:
       --certificatesresolvers.le.acme.email=hexxx@ok.de
       --certificatesresolvers.le.acme.storage=acme.json
       --certificatesresolvers.le.acme.httpchallenge.entrypoint=${TRAEFIK_HTTP_ENDPOINT}
-      --certificatesresolvers.le.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
       --certificatesresolvers.le.acme.storage=/etc/traefik/acme.json
-      # https://acme-v02.api.letsencrypt.org/directory
+      --certificatesresolvers.le.acme.caServer=https://acme-v02.api.letsencrypt.org/directory
+      #--certificatesresolvers.le.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
     labels:
       - traefik.enable=true
       - traefik.http.routers.traefik.entrypoints=${TRAEFIK_HTTP_ENDPOINT}

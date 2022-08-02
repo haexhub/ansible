@@ -12,10 +12,10 @@ RUN set -eux \
         yarn
 
 WORKDIR /app
-COPY --from=buildStage /clone-workspace/cos /app
+COPY --from=buildStage /clone-workspace/cos/ /app
 RUN yarn
 RUN yarn build
 
 EXPOSE 4173
 
-CMD [ "yarn", "preview" ]
+CMD [ "yarn", "preview", "--host"]
