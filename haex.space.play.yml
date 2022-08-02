@@ -11,7 +11,7 @@
     #- users/haex
     #- vim
     #- ssh
-    #- traefik
+    - traefik
     #- openldap
     #- seafile
     #- bitwarden
