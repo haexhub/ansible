@@ -9,12 +9,14 @@
       TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
       TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
 
-- name: place cos docker-compose file in the right directory
+- name: place cos files in the right directory
   copy:
-    src: roles/cos/files/docker-compose.yml
-    dest: /usr/share/docker/cos/docker-compose.yml
+    src: roles/cos/files/
+    dest: /usr/share/docker/cos/
     
 - name: start cos container
   community.docker.docker_compose:
     project_src: /usr/share/docker/cos
     state: present
+    build: yes
+    nocache: yes

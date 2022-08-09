@@ -22,3 +22,4 @@
   community.docker.docker_compose:
     project_src: /usr/share/docker/traefik/
     state: present
+    nocache: yes
