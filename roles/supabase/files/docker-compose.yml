@@ -21,6 +21,14 @@ services:
       SUPABASE_REST_URL: ${PUBLIC_REST_URL}
       SUPABASE_ANON_KEY: ${ANON_KEY}
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+    labels: 
+      - traefik.enable=true
+      - traefik.http.routers.studio.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
+      - traefik.http.routers.studio.rule=Host(`studio.${HOSTNAME}`)
+      - traefik.http.routers.studio_secure.rule=Host(`studio.${HOSTNAME}`)
+      - traefik.http.routers.studio_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
+      - traefik.http.routers.studio_secure.tls.certresolver=le
+      - traefik.http.services.studio.loadbalancer.server.port=3000
 
   kong:
     container_name: supabase-kong
@@ -77,6 +85,14 @@ services:
 
       GOTRUE_EXTERNAL_PHONE_ENABLED: ${ENABLE_PHONE_SIGNUP}
       GOTRUE_SMS_AUTOCONFIRM: ${ENABLE_PHONE_AUTOCONFIRM}
+    labels: 
+      - traefik.enable=true
+      - traefik.http.routers.auth.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
+      - traefik.http.routers.auth.rule=Host(`auth.${HOSTNAME}`)
+      - traefik.http.routers.auth_secure.rule=Host(`auth.${HOSTNAME}`)
+      - traefik.http.routers.auth_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
+      - traefik.http.routers.auth_secure.tls.certresolver=le
+      - traefik.http.services.auth.loadbalancer.server.port=9999
 
   rest:
     container_name: supabase-rest
