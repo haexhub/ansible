@@ -1,0 +1,28 @@
+---
+- name: create nhost env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/nhost/.env
+    create: yes
+    marker: '#{mark} Ansible set environment'
+    block: |
+      HOSTNAME={{ hostname }}
+      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
+      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+
+      POSTGRES_PASSWORD=secret-pg-password-never-use-this-value
+      HASURA_GRAPHQL_ADMIN_SECRET=hello123
+      HASURA_GRAPHQL_JWT_SECRET='{"type":"HS256", "key":"5152fa850c02dc222631cca898ed1485821a70912a6e3649c49076912daa3b62182ba013315915d64f40cddfbb8b58eb5bd11ba225336a6af45bbae07ca873f3","issuer":"hasura-auth"}'
+      STORAGE_ACCESS_KEY=storage-access-key-never-use-this-value
+      STORAGE_SECRET_KEY=storage-secret-key-never-use-this-value
+      AUTH_CLIENT_URL={{ hostname }}
+      PROXY_PORT=80
+
+- name: place nhost files in the right directory
+  copy:
+    src: roles/nhost/files/
+    dest: /usr/share/docker/nhost/
+    
+- name: start nhost container
+  community.docker.docker_compose:
+    project_src: /usr/share/docker/nhost
+    state: present

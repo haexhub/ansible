@@ -1,0 +1,20 @@
+---
+- name: create keycloak env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/keycloak/.env
+    create: yes
+    marker: '#{mark} Ansible set environment'
+    block: |
+      HOSTNAME={{ hostname }}
+      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
+      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+
+- name: place keycloak files in the right directory
+  copy:
+    src: roles/keycloak/files/
+    dest: /usr/share/docker/keycloak/
+    
+- name: start keycloak container
+  community.docker.docker_compose:
+    project_src: /usr/share/docker/keycloak
+    state: present

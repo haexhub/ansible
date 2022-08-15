@@ -16,4 +16,7 @@
     #- seafile
     #- bitwarden
     #- cos
-    - supabase
+    #- supabase
+    - nhost
+    - heimdall
+    - keycloak

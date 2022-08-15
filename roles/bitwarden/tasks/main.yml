@@ -1,0 +1,27 @@
+--- 
+- name: create bitwarden user
+  ansible.builtin.user:
+    name: "{{ secrets.bitwarden.username }}"
+    password: "{{ secrets.bitwarden.password | password_hash('sha512') }}"
+    group: wheel
+    state: present
+
+- name: create bitwarden env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/bitwarden/.env
+    create: yes
+    marker: '#{mark} Ansible set environment'
+    block: |
+      HOSTNAME={{ hostname }}
+      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
+      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+
+- name: place bitwarden docker-compose file in the right directory
+  copy:
+    src: roles/bitwarden/files/docker-compose.yml
+    dest: /usr/share/docker/bitwarden/docker-compose.yml
+      
+- name: start bitwarden container
+  community.docker.docker_compose:
+    project_src: /usr/share/docker/bitwarden
+    state: present

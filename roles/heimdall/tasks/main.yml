@@ -1,0 +1,20 @@
+---
+- name: create heimdall env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/heimdall/.env
+    create: yes
+    marker: '#{mark} Ansible set environment'
+    block: |
+      HOSTNAME={{ hostname }}
+      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
+      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+
+- name: place heimdall files in the right directory
+  copy:
+    src: roles/heimdall/files/
+    dest: /usr/share/docker/heimdall/
+    
+- name: start heimdall container
+  community.docker.docker_compose:
+    project_src: /usr/share/docker/heimdall
+    state: present

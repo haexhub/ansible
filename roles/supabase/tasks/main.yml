@@ -33,8 +33,8 @@
       # API Proxy - Configuration for the Kong Reverse proxy.
       ############
 
-      KONG_HTTP_PORT=8000
-      KONG_HTTPS_PORT=8443
+      KONG_HTTP_PORT=8001
+      KONG_HTTPS_PORT=8444
 
 
       ############
@@ -49,7 +49,7 @@
       ############
 
       ## General
-      SITE_URL=http://auth.haex.space
+      SITE_URL=http://localhost:3000
       ADDITIONAL_REDIRECT_URLS=
       JWT_EXPIRY=3600
       DISABLE_SIGNUP=false
@@ -62,7 +62,7 @@
       MAILER_URLPATHS_EMAIL_CHANGE="/auth/v1/verify"
 
       ## Email auth
-      ENABLE_EMAIL_SIGNUP=true
+      ENABLE_EMAIL_SIGNUP=false
       ENABLE_EMAIL_AUTOCONFIRM=false
       SMTP_ADMIN_EMAIL=admin@example.com
       SMTP_HOST=mail
@@ -72,7 +72,7 @@
       SMTP_SENDER_NAME=fake_sender
 
       ## Phone auth
-      ENABLE_PHONE_SIGNUP=true
+      ENABLE_PHONE_SIGNUP=false
       ENABLE_PHONE_AUTOCONFIRM=true
 
 
@@ -80,22 +80,14 @@
       # Studio - Configuration for the Dashboard
       ############
 
-      STUDIO_PORT=3000
+      STUDIO_PORT=3001
       #PUBLIC_REST_URL=http://localhost:8000/rest/v1/ # replace if you intend to use Studio outside of localhost
       PUBLIC_REST_URL=http://studio.haex.space/rest/v1/
 
-
-
-
-
-
-
-
-
-- name: place supabase docker-compose file in the right directory
+- name: place supabase files in the right directory
   copy:
-    src: roles/supabase/files/docker-compose.yml
-    dest: /usr/share/docker/supabase/docker-compose.yml
+    src: roles/supabase/files
+    dest: /usr/share/docker/supabase
     
 - name: start supabase container
   community.docker.docker_compose:
