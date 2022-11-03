@@ -10,8 +10,8 @@ services:
         external_url 'gitlab.haex.space:8929'
         gitlab_rails['gitlab_shell_ssh_port'] = 2224
     ports:
-      - 8929:8929
-      - 2224:22
+      - '8929:8929'
+      - '2224:22'
     volumes:
       - GITLAB_CONFIG:/etc/gitlab
       - GITLAB_LOGS:/var/log/gitlab
