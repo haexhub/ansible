@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  gitlab:
+    hostname: gitlab.haex.space
+    image: gitlab/gitlab-ce:latest
+    restart: unless-stopped
+    environment:
+      - external_url 'gitlab.haex.space'
+    ports:
+      - 2080:80
+      - 2443:443
+      - 2022:22
+    volumes:
+      - GITLAB_CONFIG:/etc/gitlab
+      - GITLAB_LOGS:/var/log/gitlab
+      - GITLAB_DATA:/var/opt/gitlab
+    shm_size: 256m
+    labels: 
+      - traefik.enable=true
+      - traefik.http.routers.gitlab.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
+      - traefik.http.routers.gitlab.rule=Host(`gitlab.${HOSTNAME}`)
+      - traefik.http.routers.gitlab_secure.rule=Host(`gitlab.${HOSTNAME}`)
+      - traefik.http.routers.gitlab_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
+      - traefik.http.routers.gitlab_secure.tls.certresolver=le
+      - traefik.http.services.gitlab.loadbalancer.server.port=443
+
+
+volumes:
+  GITLAB_CONFIG:
+  GITLAB_LOGS:
+  GITLAB_DATA:

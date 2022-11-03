@@ -17,6 +17,7 @@
     #- bitwarden
     #- cos
     #- supabase
-    - nhost
-    - heimdall
-    - keycloak
+    #- nhost
+    #- heimdall
+    #- keycloak
+    - gitlab
