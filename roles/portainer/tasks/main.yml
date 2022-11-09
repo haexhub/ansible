@@ -9,6 +9,7 @@
       HOSTNAME={{ hostname }}
       TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
       TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+      COMPOSE_PROJECT_NAME=portainer
 
 - name: place portainer docker-compose file in the right directory
   copy:

@@ -1,8 +1,8 @@
 ---
-- name: install docker
+- name: deploy services on haex space
   hosts: haex.space
-  #vars_files:
-  #  - secrets.yml
+  vars_files:
+    - secrets.yml
   become: true
   roles:
     #- portainer
@@ -13,7 +13,7 @@
     #- ssh
     #- traefik
     #- openldap
-    #- seafile
+    - seafile
     #- bitwarden
     #- cos
     #- supabase
