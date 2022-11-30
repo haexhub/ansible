@@ -27,24 +27,24 @@
     project_src: /usr/share/docker/seafile
     state: present
 
-- name: stop seafile container
-  community.docker.docker_compose:
-    project_src: /usr/share/docker/seafile
-    state: absent
-
-- name: create seafile ldap conf
-  ansible.builtin.blockinfile:
-    path: /var/lib/docker/volumes/seafile_data/_data/seafile/conf/ccnet.conf 
-    marker: '#{mark} Ansible set environment'
-    block: |
-      [LDAP]
-      HOST = ldap://openldap:1389
-      BASE = ou=users,dc=haex,dc=space
-      USER_DN = cn=admin,dc=haex,dc=space
-      PASSWORD = {{ secrets.openldap.admin_password }}
-      LOGIN_ATTR = mail
-
-- name: start seafile container again
-  community.docker.docker_compose:
-    project_src: /usr/share/docker/seafile
-    state: present
+#- name: stop seafile container
+#  community.docker.docker_compose:
+#    project_src: /usr/share/docker/seafile
+#    state: absent
+#
+#- name: create seafile ldap conf
+#  ansible.builtin.blockinfile:
+#    path: /var/lib/docker/volumes/seafile_data/_data/seafile/conf/ccnet.conf 
+#    marker: '#{mark} Ansible set environment'
+#    block: |
+#      [LDAP]
+#      HOST = ldap://openldap:1389
+#      BASE = ou=users,dc=haex,dc=space
+#      USER_DN = cn=admin,dc=haex,dc=space
+#      PASSWORD = {{ secrets.openldap.admin_password }}
+#      LOGIN_ATTR = mail
+#
+#- name: start seafile container again
+#  community.docker.docker_compose:
+#    project_src: /usr/share/docker/seafile
+#    state: present

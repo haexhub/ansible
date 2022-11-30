@@ -1,17 +1,17 @@
 ---
-- name: deploy an haex space
+- name: deploy services on haex space
   hosts: haex.space
-  #vars_files:
-  #  - secrets.yml
+  vars_files:
+    - secrets.yml
   become: true
   roles:
-    #- portainer
+    - portainer
     #- lldap
     #- docker
     #- users/haex
     #- vim
     #- ssh
-    #- traefik
+    - traefik
     #- openldap
     #- seafile
     #- bitwarden
@@ -19,5 +19,5 @@
     #- supabase
     #- nhost
     #- heimdall
-    #- keycloak
-    - gitlab
+    - keycloak
+    #- gitlab

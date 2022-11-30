@@ -6,25 +6,46 @@ services:
     image: gitlab/gitlab-ce:latest
     restart: unless-stopped
     volumes:
-      - gitlabConfig:/etc/gitlab
-      - gitlabLog:/var/log/gitlab
-      - gitlabData:/var/opt/gitlab
+      - GITLAB_CONFIG:/etc/gitlab
+      - GITLAB_LOGS:/var/log/gitlab
+      - GITLAB_DATA:/var/opt/gitlab
     ports:
-      - 2200:22
-      - 4430:443
-      - 2080:80
+      - "5080:80"
+      - "5022:22"
+      - "50433:433"
     networks:
       - ${TRAEFIK_NETWORK_NAME}
+    configs:
+      - source: gitlab
+        target: /omnibus_config.rb
+    secrets:
+      - gitlab_root_password
     environment:
-      - GITLAB_OMNIBUS_CONFIG = "external_url 'https://gitlab.haex.space/'; gitlab_rails['lfs_enabled'] = true;"
+      #- GITLAB_OMNIBUS_CONFIG = "external_url 'https://gitlab.haex.space/'; gitlab_rails['lfs_enabled'] = true;"
+      GITLAB_OMNIBUS_CONFIG: "from_file('/omnibus_config.rb')"
     labels: 
       - traefik.enable=true
       - traefik.http.routers.gitlab.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
       - traefik.http.routers.gitlab.rule=Host(`gitlab.${DOMAIN_NAME}`)
       - traefik.http.routers.gitlab_secure.rule=Host(`gitlab.${DOMAIN_NAME}`)
       - traefik.http.routers.gitlab_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
-      - traefik.http.routers.gitlab_secure.tls.certresolver=le
+      - traefik.http.routers.gitlab_secure.tls.certresolver=le_staging
       - traefik.http.services.gitlab.loadbalancer.server.port=443
 
 volumes:
-  gitlabRunner:
+  GITLAB_CONFIG:
+  GITLAB_LOGS:
+  GITLAB_DATA:
+
+networks:
+  ${TRAEFIK_NETWORK_NAME}:
+    name: ${TRAEFIK_NETWORK_NAME}
+    external: true
+
+secrets:
+  gitlab_root_password:
+    file: ./root_password.txt
+
+configs:
+  gitlab:
+    file: ./gitlab.rb
