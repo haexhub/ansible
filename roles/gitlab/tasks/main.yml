@@ -1,7 +1,7 @@
 ---
-- name: create cos env file
+- name: create gitlab env file
   ansible.builtin.blockinfile:
-    path: /usr/share/docker/cos/.env
+    path: /usr/share/docker/gitlab/.env
     create: yes
     marker: '#{mark} Ansible set environment'
     block: |
@@ -10,14 +10,14 @@
       TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
       TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
 
-- name: place cos files in the right directory
+- name: place gitlab files in the right directory
   copy:
-    src: roles/cos/files/
-    dest: /usr/share/docker/cos/
+    src: roles/gitlab/files/
+    dest: /usr/share/docker/gitlab/
     
-- name: start cos container
+- name: start gitlab container
   community.docker.docker_compose:
-    project_src: /usr/share/docker/cos
+    project_src: /usr/share/docker/gitlab
     state: present
     build: yes
     nocache: yes

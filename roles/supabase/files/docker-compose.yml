@@ -24,8 +24,8 @@ services:
     labels: 
       - traefik.enable=true
       - traefik.http.routers.studio.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
-      - traefik.http.routers.studio.rule=Host(`studio.${HOSTNAME}`)
-      - traefik.http.routers.studio_secure.rule=Host(`studio.${HOSTNAME}`)
+      - traefik.http.routers.studio.rule=Host(`studio.${DOMAIN_NAME}`)
+      - traefik.http.routers.studio_secure.rule=Host(`studio.${DOMAIN_NAME}`)
       - traefik.http.routers.studio_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
       - traefik.http.routers.studio_secure.tls.certresolver=le
       - traefik.http.services.studio.loadbalancer.server.port=3000
@@ -48,8 +48,8 @@ services:
     labels: 
       - traefik.enable=true
       - traefik.http.routers.auth.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
-      - traefik.http.routers.auth.rule=Host(`auth.${HOSTNAME}`)
-      - traefik.http.routers.auth_secure.rule=Host(`auth.${HOSTNAME}`)
+      - traefik.http.routers.auth.rule=Host(`auth.${DOMAIN_NAME}`)
+      - traefik.http.routers.auth_secure.rule=Host(`auth.${DOMAIN_NAME}`)
       - traefik.http.routers.auth_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
       - traefik.http.routers.auth_secure.tls.certresolver=le
       - traefik.http.services.auth.loadbalancer.server.port=8000

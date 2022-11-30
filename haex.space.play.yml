@@ -1,5 +1,5 @@
 ---
-- name: install docker
+- name: deploy an haex space
   hosts: haex.space
   #vars_files:
   #  - secrets.yml
@@ -17,6 +17,7 @@
     #- bitwarden
     #- cos
     #- supabase
-    - nhost
-    - heimdall
-    - keycloak
+    #- nhost
+    #- heimdall
+    #- keycloak
+    - gitlab

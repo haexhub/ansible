@@ -5,13 +5,13 @@ services:
     restart: unless-stopped
     image: portainer/portainer-ce:latest
     container_name: portainer
-    hostname: portainer
+    domain_name: portainer
     volumes: 
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/volumes:/var/lib/docker/volumes
       - portainer_data:/data
     networks:
-      - web
+      - ${TRAEFIK_NETWORK_NAME}
     ports: 
       - 127.0.0.1:19443:9443
       - 127.0.0.1:19000:9000
@@ -19,8 +19,8 @@ services:
     labels: 
       - traefik.enable=true
       - traefik.http.routers.portainer.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
-      - traefik.http.routers.portainer.rule=Host(`portainer.${HOSTNAME}`)
-      - traefik.http.routers.portainer_secure.rule=Host(`portainer.${HOSTNAME}`)
+      - traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN_NAME}`)
+      - traefik.http.routers.portainer_secure.rule=Host(`portainer.${DOMAIN_NAME}`)
       - traefik.http.routers.portainer_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
       - traefik.http.routers.portainer_secure.tls.certresolver=le
       - traefik.http.services.portainer.loadbalancer.server.port=9000
@@ -32,6 +32,6 @@ volumes:
     name: portainer_data
 
 networks:
-  web:
-    name: web
+  ${TRAEFIK_NETWORK_NAME}:
+    name: ${TRAEFIK_NETWORK_NAME}
     external: true

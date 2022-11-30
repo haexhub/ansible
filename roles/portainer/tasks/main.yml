@@ -6,9 +6,10 @@
     marker: '#{mark} Ansible set environment'
     block: |
       ADMIN_PASSWORD={{ secrets.portainer.admin_password}}
-      HOSTNAME={{ hostname }}
+      DOMAIN_NAME={{ domain_name }}
       TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
       TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
 
 - name: place portainer docker-compose file in the right directory
   copy:
