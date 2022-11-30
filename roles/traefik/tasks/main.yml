@@ -13,6 +13,7 @@
       TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
       TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
       TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
+      KEYCLOAK_NETWORK_NAME={{ keycloak.network_name }}
 
 - name: place traefik docker-compose file in the right directory
   copy:

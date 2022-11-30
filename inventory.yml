@@ -15,6 +15,9 @@ all:
         http_endpoint: http
         https_endpoint: https
         network_name: traefik
+
+      keycloak:
+        network_name: keycloak
       
       seafile: 
         admin_email: hexxx@ok.de

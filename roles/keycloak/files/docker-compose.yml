@@ -8,6 +8,7 @@ services:
       - 7080:8080
     networks:
       - ${TRAEFIK_NETWORK_NAME}
+      - ${KEYCLOAK_NETWORK_NAME}
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin 
@@ -25,5 +26,7 @@ services:
 
 networks:
   ${TRAEFIK_NETWORK_NAME}:
+    external: true
+  ${KEYCLOAK_NETWORK_NAME}:
     external: true
       
