@@ -22,7 +22,7 @@ services:
     ports:
       - 8080:8080
     networks:
-      - web
+      - ${TRAEFIK_NETWORK_NAME}
       - nhost
     environment:
       HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD:-secretpgpassword}@postgres:5432/postgres
@@ -37,12 +37,12 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.graphql.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
-      - traefik.http.routers.graphql.rule=Host(`graphql.${HOSTNAME}`)
-      - traefik.docker.network=web
-      #- traefik.http.routers.graphql_secure.rule=Host(`graphql.${HOSTNAME}`)
+      - traefik.http.routers.graphql.rule=Host(`graphql.${DOMAIN_NAME}`)
+      - traefik.docker.network=${TRAEFIK_NETWORK_NAME}
+      #- traefik.http.routers.graphql_secure.rule=Host(`graphql.${DOMAIN_NAME}`)
       #- traefik.http.routers.graphql_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
       #- traefik.http.routers.graphql_secure.tls.certresolver=le_staging
-      #- "traefik.http.routers.graphql.rule=Host(`${HOSTNAME}`) && PathPrefix(`/`)"
+      #- "traefik.http.routers.graphql.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`/`)"
 
   auth:
     image: nhost/hasura-auth:latest
@@ -65,22 +65,22 @@ services:
     ports: 
       - 4000:4000
     networks:
-      - web
+      - ${TRAEFIK_NETWORK_NAME}
       - nhost
     healthcheck:
       disable: true
     labels:
       - traefik.enable=true
       - traefik.http.routers.auth.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
-      #- traefik.http.routers.auth.rule=Host(`auth.${HOSTNAME}`)
-      #- traefik.http.routers.auth_secure.rule=Host(`auth.${HOSTNAME}`)
+      #- traefik.http.routers.auth.rule=Host(`auth.${DOMAIN_NAME}`)
+      #- traefik.http.routers.auth_secure.rule=Host(`auth.${DOMAIN_NAME}`)
       #- traefik.http.routers.auth_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
       #- traefik.http.routers.auth_secure.tls.certresolver=le_staging
       - "traefik.http.middlewares.strip-auth.stripprefix.prefixes=/v1/auth"
      # - "traefik.http.middlewares.strip-auth_secure.stripprefix.prefixes=/v1/auth"
-      - "traefik.http.routers.auth.rule=Host(`${HOSTNAME}`) && PathPrefix(`/v1/auth`)"
+      - "traefik.http.routers.auth.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`/v1/auth`)"
       - "traefik.http.routers.auth.middlewares=strip-auth@docker"
-      - traefik.docker.network=web
+      - traefik.docker.network=${TRAEFIK_NETWORK_NAME}
 
   storage:
     image: nhost/hasura-storage:0.2.1
@@ -92,12 +92,12 @@ services:
     ports:
       - 8000:8000
     networks:
-      - web
+      - ${TRAEFIK_NETWORK_NAME}
       - nhost
     healthcheck:
       disable: true
     environment:
-      PUBLIC_URL: storage.${HOSTNAME}:${PROXY_PORT:-80}
+      PUBLIC_URL: storage.${DOMAIN_NAME}:${PROXY_PORT:-80}
       HASURA_METADATA: 1
       HASURA_ENDPOINT: http://graphql-engine:8080/v1
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
@@ -110,16 +110,16 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.storage.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
-      #- traefik.http.routers.storage.rule=Host(`storage.${HOSTNAME}`)
-      #- traefik.http.routers.storage_secure.rule=Host(`storage.${HOSTNAME}`)
+      #- traefik.http.routers.storage.rule=Host(`storage.${DOMAIN_NAME}`)
+      #- traefik.http.routers.storage_secure.rule=Host(`storage.${DOMAIN_NAME}`)
       #- traefik.http.routers.storage_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
       #- traefik.http.routers.storage_secure.tls.certresolver=le_staging
-      - "traefik.http.routers.storage.rule=Host(`${HOSTNAME}`) && PathPrefix(`/v1/storage`)"
+      - "traefik.http.routers.storage.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`/v1/storage`)"
       # Rewrite the path so it matches with the new storage API path introduced in hasura-storage 0.2
       - "traefik.http.middlewares.strip-suffix.replacepathregex.regex=^/v1/storage/(.*)"
       - "traefik.http.middlewares.strip-suffix.replacepathregex.replacement=/v1/$$1"
       - "traefik.http.routers.storage.middlewares=strip-suffix@docker"
-      - traefik.docker.network=web
+      - traefik.docker.network=${TRAEFIK_NETWORK_NAME}
     command: serve
 
   functions:
@@ -128,7 +128,7 @@ services:
     expose: 
       - 3000
     networks:
-      - web
+      - ${TRAEFIK_NETWORK_NAME}
       - nhost
     healthcheck:
       disable: true
@@ -140,10 +140,10 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.middlewares.strip-functions.stripprefix.prefixes=/v1/functions"
-      - "traefik.http.routers.functions.rule=Host(`${HOSTNAME}`) && PathPrefix(`/v1/functions`)"
+      - "traefik.http.routers.functions.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`/v1/functions`)"
       - "traefik.http.routers.functions.middlewares=strip-functions@docker"
       - traefik.http.routers.functions.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
-      - traefik.docker.network=web
+      - traefik.docker.network=${TRAEFIK_NETWORK_NAME}
 
   minio:
     image: quay.io/minio/minio
@@ -182,7 +182,7 @@ volumes:
 
 networks:
   nhost:
-  web:
+  ${TRAEFIK_NETWORK_NAME}:
     driver: bridge
-    name: web
+    name: ${TRAEFIK_NETWORK_NAME}
     external: true

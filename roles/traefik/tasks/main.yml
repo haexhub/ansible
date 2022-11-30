@@ -7,11 +7,13 @@
   ansible.builtin.blockinfile:
     path: /usr/share/docker/traefik/.env
     create: yes
-    marker: '#{mark} Ansible set environment'
+    marker: '# {mark} Ansible set environment'
     block: |
-      HOSTNAME={{ hostname }}
+      DOMAIN_NAME={{ domain_name }}
       TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
       TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
+      KEYCLOAK_NETWORK_NAME={{ keycloak.network_name }}
 
 - name: place traefik docker-compose file in the right directory
   copy:
