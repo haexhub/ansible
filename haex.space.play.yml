@@ -5,19 +5,16 @@
     - secrets.yml
   become: true
   roles:
-    - portainer
-    #- lldap
     #- docker
     #- users/haex
     #- vim
     #- ssh
-    - traefik
-    #- openldap
     #- seafile
-    #- bitwarden
     #- cos
     #- supabase
     #- nhost
     #- heimdall
-    - keycloak
     #- gitlab
+    - traefik
+    - portainer
+    - keycloak

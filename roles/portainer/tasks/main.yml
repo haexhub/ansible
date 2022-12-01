@@ -1,4 +1,9 @@
 ---
+- name: remove env file if exists
+  ansible.builtin.file:
+    path: /usr/share/docker/portainer/.env
+    state: absent
+
 - name: create portainer env file
   ansible.builtin.blockinfile:
     path: /usr/share/docker/portainer/.env

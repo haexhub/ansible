@@ -3,7 +3,11 @@ version: "3"
 services:
   keycloak:
     image: quay.io/keycloak/keycloak:19.0.1
-    domain_name: keycloak
+    hostname: keycloak.${DOMAIN_NAME} 
+    container_name: keycloak
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
     ports:
       - 7080:8080
     networks:
@@ -13,10 +17,16 @@ services:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin 
       - KEYCLOAK_HOSTNAME_STRICT_HTTPS=false
+      - PROXY_ADDRESS_FORWARDING=true
     command:
-      - start-dev --domain_name keycloak.${DOMAIN_NAME} --domain_name-port=7080  
+      - start-dev
+        --hostname=${DOMAIN_NAME} 
+        --hostname-port=7080
+        --proxy=edge  
+        #--hostname-strict-backchannel=true
     labels: 
       - traefik.enable=true
+      - traefik.docker.network=${TRAEFIK_NETWORK_NAME}
       - traefik.http.routers.keycloak.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
       - traefik.http.routers.keycloak.rule=Host(`keycloak.${DOMAIN_NAME}`)
       - traefik.http.routers.keycloak_secure.rule=Host(`keycloak.${DOMAIN_NAME}`)
@@ -25,8 +35,11 @@ services:
       - traefik.http.services.keycloak.loadbalancer.server.port=8080
 
 networks:
-  ${TRAEFIK_NETWORK_NAME}:
+  traefik:
+    name: ${TRAEFIK_NETWORK_NAME}
     external: true
-  ${KEYCLOAK_NETWORK_NAME}:
+
+  keycloak:
+    name:  ${KEYCLOAK_NETWORK_NAME}
     external: true
       

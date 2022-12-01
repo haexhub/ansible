@@ -1,8 +1,8 @@
 ---
 - name: create traefik network
   community.docker.docker_network:
-    name: ${TRAEFIK_NETWORK_NAME:-traefik}
+    name: '{{ traefik.network_name }}'
 
 - name: create keycloak network
   community.docker.docker_network:
-    name: ${KEYCLOAK_NETWORK_NAME:-keycloak}
+    name: '{{ keycloak.network_name }}'

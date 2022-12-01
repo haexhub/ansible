@@ -1,9 +1,14 @@
 ---
+- name: remove env file if exists
+  ansible.builtin.file:
+    path: /usr/share/docker/keycloak/.env
+    state: absent
+    
 - name: create keycloak env file
   ansible.builtin.blockinfile:
     path: /usr/share/docker/keycloak/.env
     create: yes
-    marker: '#{mark} Ansible set environment'
+    marker: '# {mark} Ansible set environment'
     block: |
       DOMAIN_NAME={{ domain_name }}
       TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}

@@ -1,4 +1,9 @@
 --- 
+- name: remove env file if exists
+  ansible.builtin.file:
+    path: /usr/share/docker/traefik/.env
+    state: absent
+
 - name: create network
   include_tasks:
     file: create_network.yml
