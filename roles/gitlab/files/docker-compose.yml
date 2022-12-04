@@ -1,42 +1,41 @@
-version: '3.7'
+version: '3'
 
 services:
   gitlab:
-    hostname: gitlab.haex.space
-    container_name: gitlab
+    domain_name: gitlab.haex.space
     image: gitlab/gitlab-ce:latest
     restart: unless-stopped
+    volumes:
+      - GITLAB_CONFIG:/etc/gitlab
+      - GITLAB_LOGS:/var/log/gitlab
+      - GITLAB_DATA:/var/opt/gitlab
     ports:
       - "5080:80"
       - "5022:22"
       - "50433:433"
     networks:
       - web
-    volumes:
-      - GITLAB_CONFIG:/etc/gitlab
-      - GITLAB_LOGS:/var/log/gitlab
-      - GITLAB_DATA:/var/opt/gitlab
     shm_size: 256m
     secrets:
-      - gitlab_root_password
+      - gitlab_root_password      
+    configs:
+      - source: gitlab
+        target: /omnibus_config.rb
+
     environment:
-      GITLAB_OMNIBUS_CONFIG: |
-        external_url 'https://gitlab.{{ hostname }}'
-        gitlab_rails['initial_root_password'] = File.read('/run/secrets/gitlab_root_password').gsub("#.*\n$", "").gsub("\n", "")
+      #- GITLAB_OMNIBUS_CONFIG = "external_url 'https://gitlab.haex.space/'; gitlab_rails['lfs_enabled'] = true;"
+      GITLAB_OMNIBUS_CONFIG: "from_file('/omnibus_config.rb')"
+      #external_url 'https://gitlab.{{ hostname }}'
+      #  gitlab_rails['initial_root_password'] = File.read('/run/secrets/gitlab_root_password').gsub("#.*\n$", "").gsub("\n", "")
+
     labels: 
       - traefik.enable=true
       - traefik.http.routers.gitlab.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
-      - traefik.http.routers.gitlab.rule=Host(`gitlab.${HOSTNAME}`)
-      - traefik.http.routers.gitlab_secure.rule=Host(`gitlab.${HOSTNAME}`)
+      - traefik.http.routers.gitlab.rule=Host(`gitlab.${DOMAIN_NAME}`)
+      - traefik.http.routers.gitlab_secure.rule=Host(`gitlab.${DOMAIN_NAME}`)
       - traefik.http.routers.gitlab_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
       - traefik.http.routers.gitlab_secure.tls.certresolver=le_staging
-      - traefik.http.services.gitlab.loadbalancer.server.port=80
-
-  gitlab-runner:
-    image: gitlab/gitlab-runner:alpine
-    deploy:
-      mode: replicated
-      replicas: 4
+      - traefik.http.services.gitlab.loadbalancer.server.port=443
 
 volumes:
   GITLAB_CONFIG:
@@ -45,9 +44,13 @@ volumes:
 
 networks:
   web:
-    name: web
+    name: ${TRAEFIK_NETWORK_NAME}
     external: true
 
 secrets:
   gitlab_root_password:
     file: ./root_password.txt
+
+configs:
+  gitlab:
+    file: ./gitlab.rb

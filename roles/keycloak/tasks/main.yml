@@ -1,15 +1,22 @@
 ---
+- name: remove env file if exists
+  ansible.builtin.file:
+    path: /usr/share/docker/keycloak/.env
+    state: absent
+    
 - name: create keycloak env file
   ansible.builtin.blockinfile:
     path: /usr/share/docker/keycloak/.env
     create: yes
     marker: '# {mark} Ansible set environment'
     block: |
-      HOSTNAME={{ hostname }}
       COMPOSE_PROJECT_NAME=keycloak
+      DOMAIN_NAME={{ domain_name }}
 
       TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
       TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
+      KEYCLOAK_NETWORK_NAME={{ keycloak.network_name }}
 
       ADMIN_USER={{ keycloak.admin_user }}
       ADMIN_PASSWORD={{ secrets.keycloak.admin_password }}

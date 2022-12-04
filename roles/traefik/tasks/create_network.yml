@@ -1,4 +1,8 @@
 ---
-- name: create traefik default network
+- name: create traefik network
   community.docker.docker_network:
-    name: web
+    name: '{{ traefik.network_name }}'
+
+- name: create keycloak network
+  community.docker.docker_network:
+    name: '{{ keycloak.network_name }}'

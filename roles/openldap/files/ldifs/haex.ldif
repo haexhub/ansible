@@ -1,9 +1,0 @@
-dn: ou=users,dc=haex,dc=space
-cn: Martin
-sn: Drechsel
-ou: users
-mail: martin.drechsel@ok.de
-objectClass: top
-objectclass: inetOrgPerson
-objectClass: person
-

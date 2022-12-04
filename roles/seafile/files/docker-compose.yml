@@ -33,7 +33,7 @@ services:
       - SEAFILE_ADMIN_PASSWORD=${SEAFILE_ADMIN_PASSWORD}     # Specifies Seafile admin password, default is 'asecret'.
       - DB_HOST=db
       - DB_ROOT_PASSWD=${SEAFILE_DB_ROOT_PASSWORD}  
-      - SEAFILE_SERVER_HOSTNAME=files.${HOSTNAME}
+      - SEAFILE_SERVER_HOSTNAME=files.${DOMAIN_NAME}
       # - SEAFILE_SERVER_LETSENCRYPT=false
       - TIME_ZONE=${SEAFILE_TIMEZONE}
       - LANG=${SEAFILE_LANG}
@@ -44,22 +44,23 @@ services:
       - memcached
     networks:
       - seafile-net
-      - web
+      - ${TRAEFIK_NETWORK_NAME}
     labels:
       - traefik.enable=true
-      - traefik.docker.network=web
+      - traefik.docker.network=${TRAEFIK_NETWORK_NAME}
+      
       - traefik.http.routers.seafile.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
-      - traefik.http.routers.seafile.rule=Host(`files.${HOSTNAME}`)
+      - traefik.http.routers.seafile.rule=Host(`files.${DOMAIN_NAME}`)
 
       - traefik.http.routers.seafile_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
-      - traefik.http.routers.seafile_secure.rule=Host(`files.${HOSTNAME}`)
+      - traefik.http.routers.seafile_secure.rule=Host(`files.${DOMAIN_NAME}`)
       - traefik.http.routers.seafile_secure.tls.certresolver=le_staging
 
       - traefik.http.services.seafile.loadbalancer.server.port=80
 
 networks:
   seafile-net:
-  web:
+  ${TRAEFIK_NETWORK_NAME}:
     external: true
 
 volumes:

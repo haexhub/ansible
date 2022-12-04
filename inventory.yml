@@ -2,17 +2,24 @@
 all:
   hosts:
     xintero.de:
-      hostname: xintero.de
+      domain_name: xintero.de
       traefik:
-        http_endpoint: web
-        https_endpoint: web_secure
+        http_endpoint: http
+        https_endpoint: https
+        network_name: traefik
 
     haex.space:
-      hostname: haex.space
+      domain_name: haex.space
 
       traefik:
         http_endpoint: http
         https_endpoint: https
+        network_name: traefik
+
+      keycloak:
+        network_name: keycloak
+        admin_user: admin
+        postgres_user: keycloak
       
       seafile: 
         admin_email: hexxx@ok.de
@@ -20,7 +27,3 @@ all:
         language: de_DE.de
         lc_all: de_DE.UTF-8
         timezone: 'Europe/Berlin'
-      
-      keycloak:
-        admin_user: admin
-        postgres_user: keycloak

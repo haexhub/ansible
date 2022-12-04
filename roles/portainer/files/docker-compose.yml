@@ -13,7 +13,7 @@ services:
       - /var/lib/docker/volumes:/var/lib/docker/volumes
       - portainer_data:/data
     networks:
-      - web
+      - ${TRAEFIK_NETWORK_NAME}
     ports: 
       - 127.0.0.1:19443:9443
       - 127.0.0.1:19000:9000
@@ -21,8 +21,8 @@ services:
     labels: 
       - traefik.enable=true
       - traefik.http.routers.portainer.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
-      - traefik.http.routers.portainer.rule=Host(`portainer.${HOSTNAME}`)
-      - traefik.http.routers.portainer_secure.rule=Host(`portainer.${HOSTNAME}`)
+      - traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN_NAME}`)
+      - traefik.http.routers.portainer_secure.rule=Host(`portainer.${DOMAIN_NAME}`)
       - traefik.http.routers.portainer_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
       - traefik.http.routers.portainer_secure.tls.certresolver=le_staging
       - traefik.http.services.portainer.loadbalancer.server.port=9000
@@ -34,6 +34,6 @@ volumes:
     name: portainer_data
 
 networks:
-  web:
-    name: web
+  traefik:
+    name: ${TRAEFIK_NETWORK_NAME}
     external: true

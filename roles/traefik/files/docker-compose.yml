@@ -4,7 +4,6 @@ services:
   traefik:
     image: traefik:latest
     container_name: traefik
-    hostname: traefik
     restart: unless-stopped
     environment:
       TZ: Europe/Berlin
@@ -21,7 +20,8 @@ services:
       - 443:443
       - 127.0.0.1:1080:8080
     networks:
-      - web
+      - ${TRAEFIK_NETWORK_NAME}
+      - keycloak
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/localtime:/etc/localtime:ro
@@ -39,13 +39,11 @@ services:
 
 
       --certificatesresolvers.le.acme.email=hexxx@ok.de
-      --certificatesresolvers.le.acme.storage=acme.json
       --certificatesresolvers.le.acme.httpchallenge.entrypoint=${TRAEFIK_HTTP_ENDPOINT}
       --certificatesresolvers.le.acme.storage=/etc/traefik/acme.json
       --certificatesresolvers.le.acme.caServer=https://acme-v02.api.letsencrypt.org/directory
 
       --certificatesresolvers.le_staging.acme.email=hexxx@ok.de
-      --certificatesresolvers.le_staging.acme.storage=acme.json
       --certificatesresolvers.le_staging.acme.httpchallenge.entrypoint=${TRAEFIK_HTTP_ENDPOINT}
       --certificatesresolvers.le_staging.acme.storage=/etc/traefik/acme.json
       --certificatesresolvers.le_staging.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
@@ -63,9 +61,12 @@ services:
       traefik.http.services.traefik.loadbalancer.server.port: 8080
 
 networks:
-  web:
-    driver: bridge
-    name: web
+  traefik:
+    external: true
+    name: ${TRAEFIK_NETWORK_NAME}
+  keycloak:
+    external: true
+    name: ${KEYCLOAK_NETWORK_NAME}
 
 volumes:
   traefik_data:
