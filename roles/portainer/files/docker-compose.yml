@@ -24,7 +24,7 @@ services:
       - traefik.http.routers.portainer.rule=Host(`portainer.${HOSTNAME}`)
       - traefik.http.routers.portainer_secure.rule=Host(`portainer.${HOSTNAME}`)
       - traefik.http.routers.portainer_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
-      - traefik.http.routers.portainer_secure.tls.certresolver=le
+      - traefik.http.routers.portainer_secure.tls.certresolver=le_staging
       - traefik.http.services.portainer.loadbalancer.server.port=9000
     command: 
       --admin-password "${ADMIN_PASSWORD}"

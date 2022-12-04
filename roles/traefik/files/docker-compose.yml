@@ -6,6 +6,8 @@ services:
     container_name: traefik
     hostname: traefik
     restart: unless-stopped
+    environment:
+      TZ: Europe/Berlin
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -25,12 +27,16 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - traefik_data:/etc/traefik/
     command: 
-      --api.insecure
+      --api.insecure=true
+      --api.dashboard=true
+
       --providers.docker
       --providers.docker.exposedByDefault=false
 
       --entrypoints.${TRAEFIK_HTTP_ENDPOINT}.address=:80
       --entrypoints.${TRAEFIK_HTTPS_ENDPOINT}.address=:443
+
+
 
       --certificatesresolvers.le.acme.email=hexxx@ok.de
       --certificatesresolvers.le.acme.storage=acme.json
@@ -45,15 +51,16 @@ services:
       --certificatesresolvers.le_staging.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
 
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.traefik.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
-      - traefik.http.routers.traefik.rule=Host(`traefik.${HOSTNAME}`)
+      traefik.enable: "true"
+      traefik.http.routers.traefik.service: api@internal
+      traefik.http.routers.traefik.entrypoints=: ${TRAEFIK_HTTP_ENDPOINT}
+      traefik.http.routers.traefik.rule: Host(`traefik.${HOSTNAME}`)
 
-      - traefik.http.routers.traefik_secure.rule=Host(`traefik.${HOSTNAME}`)
-      - traefik.http.routers.traefik_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
-      - traefik.http.routers.traefik_secure.tls.certresolver=le
+      traefik.http.routers.traefik_secure.rule: Host(`traefik.${HOSTNAME}`)
+      traefik.http.routers.traefik_secure.entrypoints: ${TRAEFIK_HTTPS_ENDPOINT}
+      traefik.http.routers.traefik_secure.tls.certresolver: le_staging
 
-      - traefik.http.services.traefik.loadbalancer.server.port=8080
+      traefik.http.services.traefik.loadbalancer.server.port: 8080
 
 networks:
   web:
@@ -63,3 +70,8 @@ networks:
 volumes:
   traefik_data:
     name: traefik_data
+
+
+#--entryPoints='Name:${TRAEFIK_HTTP_ENDPOINT} Address::80 Redirect.EntryPoint:https'
+#--entryPoints='Name:${TRAEFIK_HTTPS_ENDPOINT} Address::443 TLS'
+#--defaultentrypoints='http,https'

@@ -17,9 +17,7 @@
       POSTGRESQL_PASS={{ secrets.keycloak.postgres_password}}
       POSTGRESQL_USER={{ keycloak.postgres_user }}
 
-- name: prepare kecloak network
-  include_tasks:
-    file: create_network.yml
+
 
 - name: place keycloak files in the right directory
   copy:

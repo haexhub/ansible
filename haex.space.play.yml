@@ -6,18 +6,13 @@
   become: true
   roles:
     #- portainer
-    #- lldap
     #- docker
     #- users/haex
     #- vim
     #- ssh
-    #- traefik
-    #- openldap
-    - seafile
-    #- bitwarden
+    - traefik
     #- cos
     #- supabase
     #- nhost
-    #- heimdall
-    #- keycloak
-    - gitlab
+    - keycloak
+    # - gitlab

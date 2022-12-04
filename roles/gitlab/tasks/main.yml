@@ -14,7 +14,7 @@
   ansible.builtin.blockinfile:
     path: /usr/share/docker/gitlab/root_password.txt
     create: yes
-    marker: '#{mark} Ansible set root password'
+    marker: '# {mark} Ansible set root password'
     block: |
       {{ secrets.gitlab.root_password }}
 
@@ -22,10 +22,10 @@
   ansible.builtin.blockinfile:
     path: /usr/share/docker/gitlab/gitlab.rb
     create: yes
-    marker: '#{mark} Ansible '
+    marker: '# {mark} Ansible '
     block: |
       external_url 'https://gitlab.{{ hostname }}'
-      gitlab_rails['initial_root_password'] = File.read('/run/secrets/gitlab_root_password').gsub("#.*$", "").gsub("\n", "")
+      gitlab_rails['initial_root_password'] = File.read('/run/secrets/gitlab_root_password').gsub("#.*\n$", "").gsub("\n", "")
 
 - name: place gitlab files in the right directory
   copy:

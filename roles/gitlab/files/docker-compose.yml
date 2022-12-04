@@ -17,13 +17,12 @@ services:
       - GITLAB_LOGS:/var/log/gitlab
       - GITLAB_DATA:/var/opt/gitlab
     shm_size: 256m
-    configs:
-      - source: gitlab
-        target: /omnibus_config.rb
     secrets:
       - gitlab_root_password
     environment:
-      GITLAB_OMNIBUS_CONFIG: "from_file('/omnibus_config.rb')"
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://gitlab.{{ hostname }}'
+        gitlab_rails['initial_root_password'] = File.read('/run/secrets/gitlab_root_password').gsub("#.*\n$", "").gsub("\n", "")
     labels: 
       - traefik.enable=true
       - traefik.http.routers.gitlab.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
@@ -52,7 +51,3 @@ networks:
 secrets:
   gitlab_root_password:
     file: ./root_password.txt
-
-configs:
-  gitlab:
-    file: ./gitlab.rb
