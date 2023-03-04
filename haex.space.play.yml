@@ -21,4 +21,4 @@
     #- gitlab
     - traefik
     - portainer
-    - keycloak
+    - gun
