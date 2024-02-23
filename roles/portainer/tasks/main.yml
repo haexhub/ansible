@@ -7,10 +7,10 @@
 - name: create portainer env file
   ansible.builtin.blockinfile:
     path: /usr/share/docker/portainer/.env
-    create: yes
-    marker: '# {mark} Ansible set environment'
+    create: true
+    marker: "# {mark} Ansible set environment"
     block: |
-      ADMIN_PASSWORD={{ secrets.portainer.admin_password}}
+      ADMIN_PASSWORD={{ secrets.portainer.admin_password }}
       DOMAIN_NAME={{ domain_name }}
       TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
       TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
@@ -21,8 +21,8 @@
   copy:
     src: roles/portainer/files/docker-compose.yml
     dest: /usr/share/docker/portainer/docker-compose.yml
-    
+
 - name: start portainer container
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: /usr/share/docker/portainer
     state: present

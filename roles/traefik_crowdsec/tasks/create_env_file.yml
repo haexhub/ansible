@@ -1,0 +1,42 @@
+---
+- name: set traefik env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/traefik/.env
+    create: yes
+    marker: "# {mark} Ansible set environment"
+    block: |
+      DOMAIN_NAME={{ domain_name }}
+      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
+      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
+
+      # Service Crowdsec
+      CROWDSEC_CONTAINER_NAME={{ crowdsec.container_name:-crowdsec }}
+      CROWDSEC_HOSTNAME={{ crowdsec.hostname:-crowdsec }}
+      CROWDSEC_IMAGE={{ crowdsec.image:-crowdsecurity/crowdsec }}
+      CROWDSEC_IMAGE_VERSION={{ crowdsec.image_version:-latest }}
+      CROWDSEC_NETWORKS_CROWDSEC_IPV4={{ crowdsec.networks_crowsec_ipv4:- 172.31.254.254 }}
+
+      # Service Traefik
+      TRAEFIK_CONTAINER_NAME={{ traefik.container_name:-traefik }}
+      TRAEFIK_HOSTNAME={{ traefik.hostname:-traefik }}
+      TRAEFIK_IMAGE={{ traefik.image:-traefik }}
+      TRAEFIK_IMAGE_VERSION={{ traefik.image_version:-2.10 }}
+      TRAEFIK_LABELS_TRAEFIK_HOST={{ traefik.labels_traefik_host:-`traefik.haex.space` }}
+      TRAEFIK_NETWORKS_CROWDSEC_IPV4={{ traefik.networks_crowdsec_ipv4:-172.31.254.253 }}
+      TRAEFIK_NETWORKS_PROXY_IPV4={{ traefik.networks_proxy_ipv4:-172.30.255.254 }}
+
+      # Service Traefik Crowdsec Bouncer
+      TRAEFIK_CROWDSEC_BOUNCER_CONTAINER_NAME={{ traefik_crowdsec_bouncer.container_name:-traefik_crowdsec_bouncer }}
+      TRAEFIK_CROWDSEC_BOUNCER_HOSTNAME={{ traefik_crowdsec_bouncer.hostname:-traefik-crowdsec-bouncer }}
+      TRAEFIK_CROWDSEC_BOUNCER_IMAGE=fbonalair/traefik-crowdsec-bouncer
+      TRAEFIK_CROWDSEC_BOUNCER_IMAGE_VERSION=latest
+      TRAEFIK_CROWDSEC_BOUNCER_NETWORKS_CROWDSEC_IPV4=172.31.254.252
+
+      # Netzwerkeinstellungen
+      NETWORKS_PROXY_NAME=proxy
+      NETWORKS_PROXY_SUBNET_IPV4=172.30.0.0/16
+      NETWORKS_CROWDSEC_NAME=crowdsec
+      NETWORKS_CROWDSEC_SUBNET_IPV4=172.31.0.0/16
+
+      crowdsec_bouncer=P7dui+6o+p1w/TpBag14rQ
