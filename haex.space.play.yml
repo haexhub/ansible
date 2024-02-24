@@ -6,6 +6,6 @@
   become: true
   roles:
     - docker_debian
-    - vim
+    - vim_debian
     - traefik
     - portainer
