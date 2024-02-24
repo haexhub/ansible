@@ -6,4 +6,5 @@
   become: true
   roles:
     - docker_debian
+    - traefik
     - portainer

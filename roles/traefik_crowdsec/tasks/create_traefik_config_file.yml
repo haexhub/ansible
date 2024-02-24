@@ -2,8 +2,7 @@
 - name: set traefik env file
   ansible.builtin.blockinfile:
     path: /usr/share/docker/traefik/traefik.yml
-    mode: 0644
-    create: yes
+    create: true
     marker: "# {mark} Ansible set environment"
     block: |
       api:
@@ -16,14 +15,14 @@
       certificatesResolvers:
         http_resolver:
           acme:
-            email: "deine@email.de"
-            storage: "acme_letsencrypt.json"
+            email: {{ traefik.lets_encrypt.email }}
+            storage: {{ traefik.lets_encrypt.storage.http_resolver :- acme_letsencrypt.json }}
             httpChallenge:
               entryPoint: web
         tls_resolver:
           acme:
-            email: "deine@email.de"
-            storage: "tls_letsencrypt.json"
+            email: {{ traefik.lets_encrypt.email }}
+            storage: {{ traefik.lets_encrypt.storage.tls_resolver :- tls_letsencrypt.json }}
             tlsChallenge: {}
             
       entryPoints:

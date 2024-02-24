@@ -38,5 +38,3 @@
       NETWORKS_PROXY_SUBNET_IPV4=172.30.0.0/16
       NETWORKS_CROWDSEC_NAME=crowdsec
       NETWORKS_CROWDSEC_SUBNET_IPV4=172.31.0.0/16
-
-      crowdsec_bouncer=P7dui+6o+p1w/TpBag14rQ

@@ -1,0 +1,5 @@
+---
+- name: copy dynamic config file
+  copy:
+    src: roles/traefik/files/dynamic_config.yml
+    dest: /usr/share/docker/traefik/dynamic_config.yml

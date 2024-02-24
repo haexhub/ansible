@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+  traefik:
+    image: ${TRAEFIK_IMAGE:-traefik}:${TRAEFIK_IMAGE_VERSION:-latest}
+    container_name: traefik
+    hostname: ${TRAEFIK_HOSTNAME:-traefik}
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 10s
+      timeout: 1s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    environment:
+      TZ: Europe/Berlin
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - KILL
+      - NET_BIND_SERVICE
+      - DAC_READ_SEARCH
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    networks:
+      - traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./traefik.yml:/traefik.yml:ro
+      - ./acme_letsencrypt.json:/acme_letsencrypt.json
+      - ./tls_letsencrypt.json:/tls_letsencrypt.json
+      - ./dynamic_config.yml:/dynamic_config.yml:ro
+
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}
+      traefik.http.services.traefik.loadbalancer.server.port: 8080
+      traefik.http.routers.traefik.service: api@internal
+      traefik.http.routers.traefik.entrypoints: ${TRAEFIK_HTTP_ENDPOINT}
+      traefik.http.routers.traefik.rule: Host(`${TRAEFIK_LABELS_TRAEFIK_HOST}`)
+
+      traefik.http.routers.traefik_secure.tls: "true"
+      traefik.http.routers.traefik_secure.service: api@internal
+      traefik.http.routers.traefik_secure.rule: Host(`traefik.${DOMAIN_NAME}`)
+      traefik.http.routers.traefik_secure.entrypoints: ${TRAEFIK_HTTPS_ENDPOINT}
+      traefik.http.routers.traefik_secure.tls.certresolver: http_resolver_staging
+
+      traefik.http.routers.pingweb.rule: PathPrefix(`/ping`)
+      traefik.http.routers.pingweb.service: ping@internal
+      traefik.http.routers.pingweb.entrypoints: ${TRAEFIK_HTTPS_ENDPOINT}
+#
+#  traefik.http.routers.traefik_secure.rule: Host(`${TRAEFIK_LABELS_TRAEFIK_HOST}`)
+#  traefik.http.routers.traefik_secure.entrypoints: ${TRAEFIK_HTTPS_ENDPOINT}
+#  traefik.http.routers.traefik_secure.tls.certresolver: http_resolver_staging
+#
+#
+
+networks:
+  traefik:
+    external: true
+    name: ${TRAEFIK_NETWORK_NAME:-proxy}
+
+volumes:
+  traefik_data:
+    name: traefik_data

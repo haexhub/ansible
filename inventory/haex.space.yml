@@ -8,14 +8,22 @@ haex_space:
     traefik:
       container_name: traefik
       hostname: traefik
-      http_endpoint: http
-      https_endpoint: https
-      image_version: 2.10
+      http_endpoint: web
+      https_endpoint: websecure
+      image: traefik
+      image_version: latest
       labels_traefik_host: traefik.haex.space
-      network_name: traefik
+      network_name: proxy
       networks_crowdsec_ipv4: 172.31.254.253
       networks_proxy_ipv4: 172.30.255.254
-      
+      lets_encrypt: {
+        email: hexxx@ok.de,
+        storage: {
+          http_resolver: acme_letsencrypt.json,
+          tls_resolver: tls_letsencrypt.json
+        }
+      }
+
     crowdsec:
       container_name: crowdsec
       hostname: crowdsec

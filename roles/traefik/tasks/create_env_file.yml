@@ -1,0 +1,29 @@
+---
+- name: remove env file if exists
+  ansible.builtin.file:
+    path: /usr/share/docker/traefik/.env
+    state: absent
+
+- name: create traefik env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/traefik/.env
+    create: yes
+    marker: "# {mark} Ansible set environment"
+    block: |
+      DOMAIN_NAME={{ domain_name }}
+      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
+      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
+
+      # Lets Encrypt
+      TRAEFIK_LETS_ENCRYPT_EMAIL={{ traefik.lets_encrypt.email }}
+      TRAEFIK_LETS_ENCRYPT_STORAGE_HTTP_RESOLVER={{ traefik.lets_encrypt.storage.http_resolver }}
+      TRAEFIK_LETS_ENCRYPT_STORAGE_TLS_RESOLVER={{ traefik.lets_encrypt.storage.tls_resolver }}
+      
+      # Service Traefik
+      TRAEFIK_CONTAINER_NAME={{ traefik.container_name | default(traefik) }}
+      TRAEFIK_HOSTNAME={{ traefik.hostname | default(traefik) }}
+      TRAEFIK_IMAGE={{ traefik.image | default(traefik) }}
+      TRAEFIK_IMAGE_VERSION={{ traefik.image_version | default(latest) }}
+      TRAEFIK_LABELS_TRAEFIK_HOST={{ traefik.labels_traefik_host | default(traefik.haex.space) }}
+

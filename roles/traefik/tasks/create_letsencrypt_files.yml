@@ -1,0 +1,12 @@
+---
+- name: create letsencrypt acme json
+  file:
+    mode: 600
+    path: /usr/share/docker/traefik/acme_letsencrypt.json
+    state: touch
+
+- name: create letsencrypt tls json
+  file:
+    mode: 600
+    path: /usr/share/docker/traefik/tls_letsencrypt.json
+    state: touch

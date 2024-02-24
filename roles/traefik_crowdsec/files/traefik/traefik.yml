@@ -1,5 +1,6 @@
 api:
   dashboard: true
+  
 
 metrics:
   prometheus:
@@ -50,8 +51,8 @@ ping:
   entryPoint: "ping"
 
 global:
-  checknewversion: true
-  sendanonymoususage: false
+  checkNewVersion: true
+  sendAnonymousUsage: false
 
 experimental:
   plugins:

@@ -1,0 +1,4 @@
+---
+- name: create traefik network
+  docker_network:
+    name: "{{ traefik.network_name | default(traefik) }}"

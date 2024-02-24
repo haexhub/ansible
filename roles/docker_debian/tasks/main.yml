@@ -10,7 +10,6 @@
   block:
     - name: Add Docker's official GPG key
       become: true
-
       block:
         - name: Install necessary packages
           apt:
@@ -21,7 +20,7 @@
               - gnupg2
               - software-properties-common
             state: latest
-            update_cache: yes
+            update_cache: true
 
         - name: Add GPG key
           apt_key:
@@ -47,7 +46,7 @@
 
     - name: Install Docker packages
       become: true
-      ansible.builtin.apt:
+      apt:
         name:
           - docker-ce 
           - docker-ce-cli 
@@ -55,5 +54,5 @@
           - docker-buildx-plugin 
           - docker-compose-plugin
         state: latest
-        update_cache: yes
+        update_cache: true
   when: docker_installed.failed

@@ -1,0 +1,20 @@
+---
+- name: setup traefik
+  include_tasks: "{{ item }}"
+  loop: 
+    - create_env_file.yml
+    - create_network.yml
+    - create_dynamic_config.yml
+    - create_traefik_config.yml
+    - create_letsencrypt_files.yml
+
+
+- name: place traefik docker-compose file in the right directory
+  copy:
+    src: roles/traefik/files/docker-compose.yml
+    dest: /usr/share/docker/traefik/docker-compose.yml
+
+- name: start traefik container
+  community.docker.docker_compose_v2:
+    project_src: /usr/share/docker/traefik/
+    state: present
