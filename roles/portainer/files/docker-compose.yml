@@ -15,9 +15,9 @@ services:
     networks:
       - traefik
     ports:
-      - 0.0.0.0:19443:9443
-      - 0.0.0.0:19000:9000
-      - 0.0.0.0:18000:8000
+      - 127.0.0.1:19443:9443
+      - 127.0.0.1:19000:9000
+      - 127.0.0.1:18000:8000
     labels:
       traefik.enable: "true"
       traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}

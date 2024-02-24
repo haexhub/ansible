@@ -25,7 +25,7 @@ services:
     ports:
       - 80:80
       - 443:443
-      - 8080:8080
+      - 127.0.0.1:1080:8080
     networks:
       - traefik
     volumes:
@@ -53,12 +53,6 @@ services:
       traefik.http.routers.pingweb.rule: PathPrefix(`/ping`)
       traefik.http.routers.pingweb.service: ping@internal
       traefik.http.routers.pingweb.entrypoints: ${TRAEFIK_HTTPS_ENDPOINT}
-#
-#  traefik.http.routers.traefik_secure.rule: Host(`${TRAEFIK_LABELS_TRAEFIK_HOST}`)
-#  traefik.http.routers.traefik_secure.entrypoints: ${TRAEFIK_HTTPS_ENDPOINT}
-#  traefik.http.routers.traefik_secure.tls.certresolver: http_resolver_staging
-#
-#
 
 networks:
   traefik:
