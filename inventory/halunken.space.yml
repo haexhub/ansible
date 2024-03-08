@@ -17,8 +17,8 @@ halunken_space:
       lets_encrypt:
         email: hexxx@ok.de
         storage:
-          http_resolver: acme_letsencrypt.json
-          tls_resolver: tls_letsencrypt.json
+          http_resolver: /acme_letsencrypt.json
+          tls_resolver: /tls_letsencrypt.json
       network_name: proxy
       ping_port: 88
       http_port: 80

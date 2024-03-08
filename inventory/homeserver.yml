@@ -16,9 +16,9 @@ halunken_space:
       labels_traefik_host: traefik.halunken.space
       network_name: proxy
       lets_encrypt:
-        email: hexxx@ok.de,
+        email: hexxx@ok.de
         storage:
-          http_resolver: acme_letsencrypt.json,
+          http_resolver: acme_letsencrypt.json
           tls_resolver: tls_letsencrypt.json
 
     seaweed:
