@@ -1,0 +1,92 @@
+version: "3.7"
+
+services:
+  kratos-migrate:
+    image: oryd/kratos:v1.1.0
+    environment:
+      - DSN=sqlite:///var/lib/sqlite/db.sqlite?_fk=true&mode=rwc
+    volumes:
+      - type: volume
+        source: kratos-sqlite
+        target: /var/lib/sqlite
+        read_only: false
+      - type: bind
+        source: ./config
+        target: /etc/config/kratos
+    command: --config /etc/config/kratos/kratos.yml migrate sql -e --yes
+    restart: on-failure
+    networks:
+      - intranet
+
+  kratos-selfservice-ui-node:
+    image: oryd/kratos-selfservice-ui-node:v1.1.0
+    environment:
+      - KRATOS_PUBLIC_URL=http://haex.space:4433/
+      - COOKIE_SECRET=234723872348787487435rdsf
+      - CSRF_COOKIE_NAME=kratos_ui
+      - CSRF_COOKIE_SECRET=awjdhu23z428973z4232345gw
+      - PORT=4455
+      - KRATOS_BROWSER_URL=http://haex.space:4433/
+
+      #- JWKS_URL=http://oathkeeper:4456/.well-known/jwks.json
+      #- SECURITY_MODE=jwks
+    networks:
+      - intranet
+    ports:
+      - "4455:4455"
+    restart: on-failure
+
+  kratos:
+    depends_on:
+      - kratos-migrate
+    image: oryd/kratos:v1.1.0
+    ports:
+      - "4433:4433" # public
+      - "4434:4434" # admin
+    restart: unless-stopped
+    environment:
+      - DSN=sqlite:///var/lib/sqlite/db.sqlite?_fk=true
+      - LOG_LEVEL=trace
+      - SELFSERVICE_METHODS_PASSWORD_CONFIG_HAVEIBEENPWNED_ENABLED=false
+      #- SERVE_PUBLIC_BASE_URL=http://127.0.0.1:4455/.ory/kratos/public/
+    command: serve --config /etc/config/kratos/kratos.yml  --watch-courier
+    volumes:
+      - type: volume
+        source: kratos-sqlite
+        target: /var/lib/sqlite
+        read_only: false
+      - type: bind
+        source: ./config
+        target: /etc/config/kratos
+    networks:
+      - intranet
+
+  # oathkeeper:
+  #   image: oryd/oathkeeper:v0.40
+  #   depends_on:
+  #     - kratos
+  #   ports:
+  #     - 4455:4455
+  #     - 4456:4456
+  #   command: serve proxy --config "/etc/config/oathkeeper/oathkeeper.yml"
+  #   environment:
+  #     - LOG_LEVEL=debug
+  #   restart: on-failure
+  #   networks:
+  #     - intranet
+  #   volumes:
+  #     - ./oathkeeper:/etc/config/oathkeeper
+
+  mailslurper:
+    image: oryd/mailslurper:latest-smtps
+    ports:
+      - "4436:4436"
+      - "4437:4437"
+    networks:
+      - intranet
+
+networks:
+  intranet:
+
+volumes:
+  kratos-sqlite:

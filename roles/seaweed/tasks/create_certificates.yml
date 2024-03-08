@@ -1,0 +1,37 @@
+---
+- name: install go
+  apt:
+    name:
+      - golang-go
+    state: latest
+
+- name: clone repo
+  ansible.builtin.git:
+    dest: /usr/share/docker/seaweed/certstrap
+    repo: https://github.com/square/certstrap
+    single_branch: yes
+
+- name: build certstrap
+  ansible.builtin.command:
+    cmd: go build
+    chdir: /usr/share/docker/seaweed/certstrap
+
+- name: check if seaweed CA exists
+  ansible.builtin.stat:
+    path: /usr/share/docker/seaweed/certificates/SeaweedFS_CA.crt
+  register: seaweed_ca_file
+
+- name: create certificates for seaweed if needed
+  ansible.builtin.shell:
+    cmd: "{{ item }}"
+    chdir: /usr/share/docker/seaweed/
+  loop:
+    - /usr/share/docker/seaweed/certstrap/certstrap --depot-path /usr/share/docker/seaweed/certificates init --passphrase "" --common-name "SeaweedFS CA"
+    - /usr/share/docker/seaweed/certstrap/certstrap --depot-path /usr/share/docker/seaweed/certificates request-cert --passphrase "" --common-name master01
+    - /usr/share/docker/seaweed/certstrap/certstrap --depot-path /usr/share/docker/seaweed/certificates request-cert --passphrase "" --common-name filer01
+    - /usr/share/docker/seaweed/certstrap/certstrap --depot-path /usr/share/docker/seaweed/certificates request-cert --passphrase "" --common-name volume01
+    - /usr/share/docker/seaweed/certstrap/certstrap --depot-path /usr/share/docker/seaweed/certificates request-cert --passphrase "" --common-name client01
+    - /usr/share/docker/seaweed/certstrap/certstrap --depot-path /usr/share/docker/seaweed/certificates sign --expires "2 years" --CA "SeaweedFS CA" master01
+    - /usr/share/docker/seaweed/certstrap/certstrap --depot-path /usr/share/docker/seaweed/certificates sign --expires "2 years" --CA "SeaweedFS CA" filer01
+    - /usr/share/docker/seaweed/certstrap/certstrap --depot-path /usr/share/docker/seaweed/certificates sign --expires "2 years" --CA "SeaweedFS CA" client01
+  when: not seaweed_ca_file.stat.exists

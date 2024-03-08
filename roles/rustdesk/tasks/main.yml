@@ -1,0 +1,33 @@
+---
+- name: create rustdesk folder
+  file:
+    path: /usr/share/docker/rustdesk
+    state: directory
+    recurse: yes
+
+- name: remove env file if exists
+  ansible.builtin.file:
+    path: /usr/share/docker/rustdesk/.env
+    state: absent
+
+- name: create rustdesk env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/rustdesk/.env
+    create: true
+    marker: "# {mark} Ansible set environment"
+    block: |
+      DOMAIN_NAME={{ domain_name }}
+      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
+      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
+      COMPOSE_PROJECT_NAME=rustdesk
+
+- name: place rustdesk docker-compose file in the right directory
+  copy:
+    src: roles/rustdesk/files/docker-compose.yml
+    dest: /usr/share/docker/rustdesk/docker-compose.yml
+
+- name: start rustdesk container
+  community.docker.docker_compose_v2:
+    project_src: /usr/share/docker/rustdesk/
+    state: present

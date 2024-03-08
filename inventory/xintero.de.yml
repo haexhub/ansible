@@ -1,0 +1,21 @@
+xintero_de:
+  hosts:
+    xintero.de:
+
+  vars:
+    domain_name: xintero.de
+
+    traefik:
+      container_name: traefik
+      hostname: traefik
+      http_endpoint: web
+      https_endpoint: websecure
+      image: traefik
+      image_version: latest
+      labels_traefik_host: traefik.xintero.de
+      network_name: proxy
+      lets_encrypt:
+        email: hexxx@ok.de
+        storage:
+          http_resolver: acme_letsencrypt.json
+          tls_resolver: tls_letsencrypt.json

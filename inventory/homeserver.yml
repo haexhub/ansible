@@ -1,0 +1,37 @@
+halunken_space:
+  hosts:
+    192.168.178.79:
+
+  vars:
+    mode: development # development or production
+    domain_name: homeserver
+
+    traefik:
+      container_name: traefik
+      hostname: traefik
+      http_endpoint: web
+      https_endpoint: websecure
+      image: traefik
+      image_version: latest
+      labels_traefik_host: traefik.halunken.space
+      network_name: proxy
+      lets_encrypt:
+        email: hexxx@ok.de,
+        storage:
+          http_resolver: acme_letsencrypt.json,
+          tls_resolver: tls_letsencrypt.json
+
+    seaweed:
+      cors:
+        allowed:
+          origins: "*"
+
+    authelia:
+      sub_domain: auth
+      default_redirection_url: https://auth.halunken.space
+      notifier:
+        smtp:
+          host: smtp.ok.de
+          port: 587
+          sender: hexxx@ok.de
+          username: martin.drechsel@ok.de

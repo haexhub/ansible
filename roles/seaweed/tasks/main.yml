@@ -1,0 +1,31 @@
+---
+- name: create seaweed env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/seaweed/.env
+    create: yes
+    marker: "#{mark} Ansible set environment"
+    block: |
+      DOMAIN_NAME={{ domain_name }}
+      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
+      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
+      TRAEFIK_LETS_ENCRYPT_RESOLVER={{ mode == "production" | ternary("http_resolver", "http_resolver_staging") }}
+
+- name: create certificates
+  ansible.builtin.include_tasks:
+    file: create_certificates.yml
+
+- name: copy seaweed files in the right directory
+  copy:
+    src: roles/seaweed/files/
+    dest: /usr/share/docker/seaweed/
+
+- name: create security.toml using jinia
+  ansible.builtin.template:
+    src: roles/seaweed/files/security.j2
+    dest: /usr/share/docker/seaweed/security.toml
+
+- name: start seaweed container
+  community.docker.docker_compose_v2:
+    project_src: /usr/share/docker/seaweed
+    state: present

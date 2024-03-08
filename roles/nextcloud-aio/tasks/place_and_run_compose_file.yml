@@ -1,0 +1,10 @@
+---
+- name: place nextcloud docker-compose file in the right directory
+  copy:
+    src: roles/nextcloud/files/docker-compose.yml
+    dest: /usr/share/docker/nextcloud/docker-compose.yml
+
+- name: start nextcloud container
+  community.docker.docker_compose_v2:
+    project_src: /usr/share/docker/nextcloud/
+    state: present

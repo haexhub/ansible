@@ -1,0 +1,78 @@
+# Traefik dynamic configuration file
+# See https://doc.traefik.io/traefik/getting-started/configuration-overview/#the-dynamic-configuration
+
+# See https://doc.traefik.io/traefik/https/tls/
+tls:
+  options:
+    default:
+      minVersion: VersionTLS12
+      cipherSuites:
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+        - TLS_AES_128_GCM_SHA256
+        - TLS_AES_256_GCM_SHA384
+        - TLS_CHACHA20_POLY1305_SHA256
+      curvePreferences:
+        - CurveP521
+        - CurveP384
+      sniStrict: true
+    # To use with the label "traefik.http.routers.myrouter.tls.options=modern@file"
+    modern:
+      minVersion: "VersionTLS13" # Minimum TLS Version
+      sniStrict: true # Strict SNI Checking
+
+    # To use with the label "traefik.http.routers.myrouter.tls.options=intermediate@file"
+    intermediate:
+      cipherSuites:
+        - "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
+        - "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+        - "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384"
+        - "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+        - "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305"
+        - "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305"
+      minVersion: "VersionTLS12" # Minimum TLS Version
+      sniStrict: true # Strict SNI Checking
+
+http:
+  middlewares:
+    # Recommended default middleware for most of the services
+    # Use with traefik.http.routers.myRouter.middlewares: "default@file"
+    # Equivalent of traefik.http.routers.myRouter.middlewares: "default-security-headers@file,error-pages@file,gzip@file"
+    default:
+      chain:
+        middlewares:
+          - default-security-headers
+          #- authelia
+          - gzip
+
+    default-security-headers:
+      headers:
+        browserXssFilter: true # X-XSS-Protection=1; mode=block
+        contentTypeNosniff: true # X-Content-Type-Options=nosniff
+        forceSTSHeader: true # Add the Strict-Transport-Security header even when the connection is HTTP
+        frameDeny: true # X-Frame-Options=deny
+        referrerPolicy: "strict-origin-when-cross-origin"
+        sslRedirect: true # Allow only https requests
+        stsIncludeSubdomains: true # Add includeSubdomains to the Strict-Transport-Security header
+        stsPreload: true # Add preload flag appended to the Strict-Transport-Security header
+        stsSeconds: 31536000 # Set the max-age of the Strict-Transport-Security header (31536000 = 1 year)
+        customFrameOptionsValue: "SAMEORIGIN"
+
+    # Enables the GZIP compression (https://docs.traefik.io/middlewares/compress/)
+    #   if the response body is larger than 1400 bytes
+    #   if the Accept-Encoding request header contains gzip
+    #   if the response is not already compressed (Content-Encoding is not set)
+    # Use with traefik.http.routers.myRouter.middlewares: "gzip@file"
+    gzip:
+      compress: {}
+
+    authelia:
+      forwardAuth:
+        address: https://authelia:9091/api/verify?rd=https%3A%2F%2F{{ authelia.sub_domain }}.{{ domain_name }}%2F
+        trustForwardHeader: true
+        authResponseHeaders:
+          - "Remote-User"
+          - "Remote-Groups"
+          - "Remote-Email"
+          - "Remote-Name"

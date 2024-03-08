@@ -15,6 +15,7 @@
       TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
       TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
       TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
+      TRAEFIK_LETS_ENCRYPT_RESOLVER={{ (mode == "production") | ternary("http_resolver", "http_resolver_staging") }}
       COMPOSE_PROJECT_NAME=portainer
 
 - name: place portainer docker-compose file in the right directory

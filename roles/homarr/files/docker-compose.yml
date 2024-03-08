@@ -1,0 +1,21 @@
+version: "3"
+#---------------------------------------------------------------------#
+#     Homarr - A simple, yet powerful dashboard for your server.     #
+#---------------------------------------------------------------------#
+services:
+  homarr:
+    container_name: homarr
+    image: ghcr.io/ajnart/homarr:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
+      - homarr_configs:/app/data/configs
+      - homarr_icons:/app/public/icons
+      - homarr_data:/data
+    ports:
+      - "7575:7575"
+
+volumes:
+  homarr_configs:
+  homarr_icons:
+  homarr_data:

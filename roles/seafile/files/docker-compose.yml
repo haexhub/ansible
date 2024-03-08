@@ -1,70 +1,62 @@
-version: '3'
 services:
-  db:
-    image: mariadb:latest
+  seafile-db:
+    image: mariadb:10.6
+    container_name: seafile-mysql
     restart: unless-stopped
     environment:
-      - MARIADB_ROOT_PASSWORD=${SEAFILE_DB_ROOT_PASSWORD}  # Requested, set the root's password of MySQL service.
-      - MYSQL_ROOT_PASSWORD=${SEAFILE_DB_ROOT_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=db_dev
       - MYSQL_LOG_CONSOLE=true
     volumes:
-      - seafile_mysql:/var/lib/mysql  # Requested, specifies the path to MySQL data persistent store.
+      - ./mysql-db:/var/lib/mysql
     networks:
       - seafile-net
 
   memcached:
-    image: memcached:latest
+    image: memcached:1.6.18
     container_name: seafile-memcached
+    restart: unless-stopped
     entrypoint: memcached -m 256
     networks:
       - seafile-net
-          
+
   seafile:
     image: seafileltd/seafile-mc:latest
     container_name: seafile
     restart: unless-stopped
-    ports:
-      - "2080:80"
-     # - "12443:443"  # If https is enabled, cancel the comment.
     volumes:
-      - seafile_data:/shared   # Requested, specifies the path to Seafile data persistent store.
+      - seafile_data:/shared
     environment:
-      - SEAFILE_ADMIN_EMAIL=${SEAFILE_ADMIN_EMAIL} 
-      - SEAFILE_ADMIN_PASSWORD=${SEAFILE_ADMIN_PASSWORD}     # Specifies Seafile admin password, default is 'asecret'.
-      - DB_HOST=db
-      - DB_ROOT_PASSWD=${SEAFILE_DB_ROOT_PASSWORD}  
-      - SEAFILE_SERVER_HOSTNAME=files.${DOMAIN_NAME}
-      # - SEAFILE_SERVER_LETSENCRYPT=false
-      - TIME_ZONE=${SEAFILE_TIMEZONE}
-      - LANG=${SEAFILE_LANG}
-      - LANGUAGE=${SEAFILE_LANGUAGE}
-      - LC_ALL=${SEAFILE_LC_ALL}
+      - DB_HOST=seafile-db
+      - DB_ROOT_PASSWD=db_dev
+      - TIME_ZONE=Europe/Berlin
+      - SEAFILE_ADMIN_EMAIL=hexxx@ok.de
+      - SEAFILE_ADMIN_PASSWORD=test
+      - SEAFILE_SERVER_LETSENCRYPT=false
+      - FORCE_HTTPS_IN_CONF=true
+      - SEAFILE_SERVER_HOSTNAME=seafile.haex.space
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.seafile.entrypoints=websecure"
+      - "traefik.http.routers.seafile.rule=(Host(`seafile.haex.space`))"
+      - "traefik.http.routers.seafile.tls=true"
+      - "traefik.http.routers.seafile.tls.certresolver=http_resolver_staging"
+      - "traefik.http.routers.seafile.service=seafile"
+      - "traefik.http.services.seafile.loadbalancer.server.port=80"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.seafile.middlewares=authelia@docker"
+      # - "traefik.http.routers.seafile.middlewares=default@file"
+
     depends_on:
-      - db
+      - seafile-db
       - memcached
     networks:
       - seafile-net
-      - ${TRAEFIK_NETWORK_NAME}
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=${TRAEFIK_NETWORK_NAME}
-      
-      - traefik.http.routers.seafile.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
-      - traefik.http.routers.seafile.rule=Host(`files.${DOMAIN_NAME}`)
-
-      - traefik.http.routers.seafile_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
-      - traefik.http.routers.seafile_secure.rule=Host(`files.${DOMAIN_NAME}`)
-      - traefik.http.routers.seafile_secure.tls.certresolver=le_staging
-
-      - traefik.http.services.seafile.loadbalancer.server.port=80
+      - proxy
 
 networks:
   seafile-net:
-  ${TRAEFIK_NETWORK_NAME}:
+  proxy:
     external: true
 
 volumes:
   seafile_data:
-    name: seafile_data
-  seafile_mysql:
-    name: seafile_mysql

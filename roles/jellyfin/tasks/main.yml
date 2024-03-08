@@ -1,0 +1,50 @@
+--- 
+- name: create jellyfin env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/jellyfin/.env
+    create: yes
+#    marker: '#{mark} Ansible set environment'
+#    block: |
+#      DOMAIN_NAME={{ domain_name }}
+#      jellyfin_ADMIN_EMAIL={{ jellyfin.admin_email }}
+#      jellyfin_ADMIN_PASSWORD={{ secrets.jellyfin.admin_password }}
+#      jellyfin_DB_ROOT_PASSWORD={{ secrets.jellyfin.db_root_password }}
+#      jellyfin_LANG={{ jellyfin.lang }}
+#      jellyfin_LANGUAGE={{ jellyfin.language }}
+#      jellyfin_LC_ALL={{ jellyfin.lc_all }}
+#      jellyfin_TIMEZONE={{ jellyfin.timezone }}
+#      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
+#      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+#      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
+
+- name: place jellyfin docker-compose file in the right directory
+  copy:
+    src: roles/jellyfin/files/docker-compose.yml
+    dest: /usr/share/docker/jellyfin/docker-compose.yml
+      
+- name: start jellyfin container
+  community.docker.docker_compose_v2:
+    project_src: /usr/share/docker/jellyfin
+    state: present
+
+#- name: stop jellyfin container
+#  community.docker.docker_compose:
+#    project_src: /usr/share/docker/jellyfin
+#    state: absent
+#
+#- name: create jellyfin ldap conf
+#  ansible.builtin.blockinfile:
+#    path: /var/lib/docker/volumes/jellyfin_data/_data/jellyfin/conf/ccnet.conf 
+#    marker: '#{mark} Ansible set environment'
+#    block: |
+#      [LDAP]
+#      HOST = ldap://openldap:1389
+#      BASE = ou=users,dc=haex,dc=space
+#      USER_DN = cn=admin,dc=haex,dc=space
+#      PASSWORD = {{ secrets.openldap.admin_password }}
+#      LOGIN_ATTR = mail
+#
+#- name: start jellyfin container again
+#  community.docker.docker_compose:
+#    project_src: /usr/share/docker/jellyfin
+#    state: present

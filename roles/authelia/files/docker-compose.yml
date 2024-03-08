@@ -1,0 +1,60 @@
+---
+services:
+  authelia:
+    image: authelia/authelia
+    container_name: authelia
+    hostname: authelia
+    volumes:
+      - ./config:/config
+    networks:
+      - traefik
+    labels:
+      traefik.enable: true
+      traefik.http.routers.authelia.rule: Host(`${AUTHELIA_SUB_DOMAIN}.${DOMAIN_NAME}`)
+      traefik.http.routers.authelia.entrypoints: ${TRAEFIK_HTTPS_ENDPOINT}
+      #traefik.http.routers.authelia.service: authelia
+      traefik.http.routers.authelia.tls: true
+      traefik.http.routers.authelia.tls.certresolver: ${TRAEFIK_LETS_ENCRYPT_RESOLVER:-http_resolver_staging}
+      #traefik.http.middlewares.authelia.forwardauth.address: http://authelia:9091/api/authz/forward-auth?authelia_url=https://authelia.haex.space" # yamllint disable-line rule:line-lengt
+      #traefik.http.middlewares.authelia.forwardauth.trustForwardHeader: "true"
+      #traefik.http.middlewares.authelia.forwardauth.authResponseHeaders: "Remote-User,Remote-Groups,Remote-Name,Remote-Email" # yamllint disable-line rule:line-lengt
+      #traefik.http.services.authelia.loadbalancer.server.port: 9091
+
+      #traefik.http.middlewares.authelia-basic.forwardAuth.address: http://authelia:9091/api/verify?rd=https://authelia.haex.space'
+      #traefik.http.middlewares.authelia-basic.forwardAuth.authResponseHeaders: "Remote-User, Remote-Groups, Remote-Email, Remote-Name"
+      #traefik.http.middlewares.authelia-basic.forwardAuth.tls.ca: /certificates/ca.public.crt
+      #traefik.http.middlewares.authelia-basic.forwardAuth.tls.cert: /certificates/traefik.public.crt
+      #traefik.http.middlewares.authelia-basic.forwardAuth.tls.key: /certificates/traefik.private.pem
+      #traefik.http.middlewares.authelia-basic.forwardAuth.trustForwardHeader: true
+      #traefik.http.middlewares.authelia.forwardAuth.address: http://authelia:9091/api/verify?rd=https://${AUTHELIA_SUB_DOMAIN}.${DOMAIN_NAME}
+      #traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders: "Remote-User,Remote-Groups,Remote-Email,Remote-Name"
+      #traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader: true
+      #traefik.http.middlewares.authelia.forwardAuth.tls.ca: /certificates/ca.public.crt
+      #traefik.http.middlewares.authelia.forwardAuth.tls.cert: /certificates/traefik.public.crt
+      #traefik.http.middlewares.authelia.forwardAuth.tls.key: /certificates/traefik.private.pem
+    expose:
+      - 9091
+    restart: unless-stopped
+    healthcheck:
+      ## In production the healthcheck section should be commented.
+      disable: true
+    environment:
+      - TZ=Europe/Berlin
+
+  whoami_secure:
+    # A container that exposes an API to show its IP address
+    image: traefik/whoami
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoamis.rule=Host(`secure.whoami.haex.space`)"
+      - "traefik.http.routers.whoamis.entrypoints=websecure"
+      - "traefik.http.routers.whoamis.tls.certresolver=http_resolver_staging"
+      - "traefik.http.routers.whoamis.tls=true"
+      - "traefik.http.routers.whoamis.middlewares=authelia@docker"
+
+networks:
+  traefik:
+    name: ${TRAEFIK_NETWORK_NAME}
+    external: true

@@ -1,0 +1,19 @@
+---
+- name: deploy services on xintero
+  hosts: xintero.de
+  vars_files:
+    - secrets.yml
+  become: true
+  roles:
+    - docker_debian
+    - vim_debian
+    - traefik
+    #- authelia
+    #- portainer
+    #- vaultwarden
+    #- rustdesk
+    #- seafile
+    #- homarr
+    #- jellyfin
+    - dockge
+    - seaweed

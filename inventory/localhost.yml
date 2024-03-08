@@ -1,0 +1,6 @@
+localhost:
+  hosts:
+    localhost:
+
+  vars:
+    domain_name: localhost

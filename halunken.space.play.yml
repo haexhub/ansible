@@ -1,0 +1,14 @@
+---
+- name: deploy services on haex space
+  hosts: halunken.space
+  vars_files:
+    - secrets.yml
+  become: true
+  roles:
+    #- docker_debian
+    #- vim_debian
+    #- authelia
+    - traefik
+    - portainer
+    - kratos
+    #- seaweed

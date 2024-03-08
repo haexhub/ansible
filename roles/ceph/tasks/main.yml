@@ -1,0 +1,49 @@
+---
+- name: create ceph env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/ceph/.env
+    create: yes
+    marker: "#{mark} Ansible set environment"
+    block: |
+      DOMAIN_NAME={{ domain_name }}
+      MONITOR_1_IP=127.0.0.1
+      ceph_ADMIN_PASSWORD={{ secrets.ceph.admin_password }}
+      ceph_DB_ROOT_PASSWORD={{ secrets.ceph.db_root_password }}
+      ceph_LANG={{ ceph.lang }}
+      ceph_LANGUAGE={{ ceph.language }}
+      ceph_LC_ALL={{ ceph.lc_all }}
+      ceph_TIMEZONE={{ ceph.timezone }}
+      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
+      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
+
+- name: place ceph docker-compose file in the right directory
+  copy:
+    src: roles/ceph/files/
+    dest: /usr/share/docker/ceph/
+
+- name: start ceph container
+  community.docker.docker_compose_v2:
+    project_src: /usr/share/docker/ceph
+    state: present
+#- name: stop ceph container
+#  community.docker.docker_compose:
+#    project_src: /usr/share/docker/ceph
+#    state: absent
+#
+#- name: create ceph ldap conf
+#  ansible.builtin.blockinfile:
+#    path: /var/lib/docker/volumes/ceph_data/_data/ceph/conf/ccnet.conf
+#    marker: '#{mark} Ansible set environment'
+#    block: |
+#      [LDAP]
+#      HOST = ldap://openldap:1389
+#      BASE = ou=users,dc=haex,dc=space
+#      USER_DN = cn=admin,dc=haex,dc=space
+#      PASSWORD = {{ secrets.openldap.admin_password }}
+#      LOGIN_ATTR = mail
+#
+#- name: start ceph container again
+#  community.docker.docker_compose:
+#    project_src: /usr/share/docker/ceph
+#    state: present

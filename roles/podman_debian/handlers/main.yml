@@ -1,0 +1,6 @@
+---
+- name: enable and start podman service
+  service:
+    name: podman
+    enabled: true
+    state: started

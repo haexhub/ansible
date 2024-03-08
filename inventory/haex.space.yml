@@ -1,28 +1,28 @@
 haex_space:
   hosts:
-    haex.space: 
+    haex.space:
 
   vars:
+    mode: development # development or production
     domain_name: haex.space
 
     traefik:
       container_name: traefik
       hostname: traefik
+      sub_domain: traefik
       http_endpoint: web
-      https_endpoint: websecure
-      image: traefik
+      https_endpoint: web_secure
       image_version: latest
-      labels_traefik_host: traefik.haex.space
+      image: traefik
+      lets_encrypt:
+        email: hexxx@ok.de
+        storage:
+          http_resolver: /acme_letsencrypt.json # absolute path needed
+          tls_resolver: /tls_letsencrypt.json # absolute path needed
       network_name: proxy
-      networks_crowdsec_ipv4: 172.31.254.253
-      networks_proxy_ipv4: 172.30.255.254
-      lets_encrypt: {
-        email: hexxx@ok.de,
-        storage: {
-          http_resolver: acme_letsencrypt.json,
-          tls_resolver: tls_letsencrypt.json
-        }
-      }
+      ping_port: 88
+      http_port: 80
+      https_port: 433
 
     crowdsec:
       container_name: crowdsec
@@ -43,3 +43,43 @@ haex_space:
       proxy_subnet_ipv4: 172.30.0.0/16
       crowdsec_name: crowdsec
       crowdsec_subnet_ipv4: 172.31.0.0/16
+
+    nextcloud:
+      image:
+        name: nextcloud
+        version: latest
+      timezone: Europe/Berlin
+      admin_username: admin
+      hostname: nextcloud
+
+      postgres:
+        image:
+          name: postgres
+          version: latest
+        database:
+          name: nextcloud
+          user: nextcloud
+
+      redis:
+        image:
+          name: redis
+          version: alpine
+
+    vaultwarden:
+      port: 3080
+      image:
+        version: latest
+
+    authelia:
+      sub_domain: auth
+      default_redirection_url: https://haex.space
+      notifier:
+        smtp:
+          host: smtp.ok.de
+          port: 587
+          sender: hexxx@ok.de
+          username: martin.drechsel@ok.de
+
+    kratos:
+      selfservice:
+        port: 4455

@@ -1,0 +1,14 @@
+---
+- name: deploy services on homeserver
+  hosts: 192.168.178.79
+  vars_files:
+    - secrets.yml
+  become: true
+  roles:
+    - docker_debian
+    - vim_debian
+    - prepare
+    #- authelia
+    #- traefik
+    - portainer
+    #- seaweed

@@ -1,5 +1,5 @@
 ---
-- name: copy dynamic config file
-  copy:
-    src: roles/traefik/files/dynamic_config.yml
+- name: create dynamic config file from jinja
+  ansible.builtin.template:
+    src: roles/traefik/files/dynamic_config.yml.j2
     dest: /usr/share/docker/traefik/dynamic_config.yml

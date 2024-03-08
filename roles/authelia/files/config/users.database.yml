@@ -1,0 +1,34 @@
+---
+###############################################################
+#                         Users Database                      #
+###############################################################
+
+# This file can be used if you do not have an LDAP set up.
+
+# List of users
+users:
+  haex:
+    disabled: false
+    displayname: "haex"
+    password: "$argon2id$v=19$m=65536,t=3,p=4$yJqRgSVgFHFUNn/wy+37wA$NaVCU4xvQlfeYqG7rpqWKysJGgB8etlZwxpj9bHmU5k"
+    email: hexxx@ok.de
+    groups:
+      - admin
+      - dev
+      - user
+
+  user1: #username
+    disabled: false
+    displayname: "User1"
+    password: "$argon2id$v=19$m=65536,t=3,p=4$yJqRgSVgFHFUNn/wy+37wA$NaVCU4xvQlfeYqG7rpqWKysJGgB8etlZwxpj9bHmU5k"
+    #   to generate the password use
+    # docker run authelia/authelia:latest authelia crypto hash generate argon2 --password 'password'
+    email: test@exmaple.com
+    groups:
+      - admin
+      - user
+  user2:
+    disabled: false
+    displayname: "User2"
+    password: "$argon2id$v=19$m=65536,t=3,p=4$yJqRgSVgFHFUNn/wy+37wA$NaVCU4xvQlfeYqG7rpqWKysJGgB8etlZwxpj9bHmU5k"
+    email: user2@example.com

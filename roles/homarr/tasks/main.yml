@@ -1,0 +1,50 @@
+--- 
+- name: create homarr env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/homarr/.env
+    create: yes
+#    marker: '#{mark} Ansible set environment'
+#    block: |
+#      DOMAIN_NAME={{ domain_name }}
+#      homarr_ADMIN_EMAIL={{ homarr.admin_email }}
+#      homarr_ADMIN_PASSWORD={{ secrets.homarr.admin_password }}
+#      homarr_DB_ROOT_PASSWORD={{ secrets.homarr.db_root_password }}
+#      homarr_LANG={{ homarr.lang }}
+#      homarr_LANGUAGE={{ homarr.language }}
+#      homarr_LC_ALL={{ homarr.lc_all }}
+#      homarr_TIMEZONE={{ homarr.timezone }}
+#      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
+#      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+#      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
+
+- name: place homarr docker-compose file in the right directory
+  copy:
+    src: roles/homarr/files/docker-compose.yml
+    dest: /usr/share/docker/homarr/docker-compose.yml
+      
+- name: start homarr container
+  community.docker.docker_compose_v2:
+    project_src: /usr/share/docker/homarr
+    state: present
+
+#- name: stop homarr container
+#  community.docker.docker_compose:
+#    project_src: /usr/share/docker/homarr
+#    state: absent
+#
+#- name: create homarr ldap conf
+#  ansible.builtin.blockinfile:
+#    path: /var/lib/docker/volumes/homarr_data/_data/homarr/conf/ccnet.conf 
+#    marker: '#{mark} Ansible set environment'
+#    block: |
+#      [LDAP]
+#      HOST = ldap://openldap:1389
+#      BASE = ou=users,dc=haex,dc=space
+#      USER_DN = cn=admin,dc=haex,dc=space
+#      PASSWORD = {{ secrets.openldap.admin_password }}
+#      LOGIN_ATTR = mail
+#
+#- name: start homarr container again
+#  community.docker.docker_compose:
+#    project_src: /usr/share/docker/homarr
+#    state: present

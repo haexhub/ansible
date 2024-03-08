@@ -1,0 +1,58 @@
+version: "3"
+
+services:
+  hbbs:
+    container_name: hbbs
+    image: rustdesk/rustdesk-server:latest
+    command: hbbs -r hbbr.haex.space
+    volumes:
+      - rustdesk_hbbs:/root
+    networks:
+      - proxy
+    ports:
+      - 21115:21115
+      - 21116:21116
+      - 21116:21116/udp
+      - 21118:21118
+    depends_on:
+      - hbbr
+    restart: unless-stopped
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}
+      traefik.http.routers.hbbs.entrypoints: ${TRAEFIK_HTTP_ENDPOINT}
+      traefik.http.routers.hbbs.rule: Host(`hbbs.${DOMAIN_NAME}`)
+      traefik.http.routers.hbbs_secure.rule: Host(`hbbs.${DOMAIN_NAME}`)
+      traefik.http.routers.hbbs_secure.entrypoints: ${TRAEFIK_HTTPS_ENDPOINT}
+      traefik.http.routers.hbbs_secure.tls.certresolver: ${TRAEFIK_LETS_ENCRYPT_RESOLVER:-http_resolver_staging}
+      traefik.http.services.hbbs.loadbalancer.server.port: 21116
+
+  hbbr:
+    container_name: hbbr
+    image: rustdesk/rustdesk-server:latest
+    command: hbbr
+    volumes:
+      - rustdesk_hbbr:/root
+    networks:
+      - proxy
+    ports:
+      - 21117:21117
+      - 21119:21119
+    restart: unless-stopped
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}
+      traefik.http.routers.hbbr.entrypoints: ${TRAEFIK_HTTP_ENDPOINT}
+      traefik.http.routers.hbbr.rule: Host(`hbbr.${DOMAIN_NAME}`)
+      traefik.http.routers.hbbr_secure.rule: Host(`hbbr.${DOMAIN_NAME}`)
+      traefik.http.routers.hbbr_secure.entrypoints: ${TRAEFIK_HTTPS_ENDPOINT}
+      traefik.http.routers.hbbr_secure.tls.certresolver: http_resolver_staging
+      traefik.http.services.hbbr.loadbalancer.server.port: 21117
+
+volumes:
+  rustdesk_hbbs:
+  rustdesk_hbbr:
+
+networks:
+  proxy:
+    external: true
