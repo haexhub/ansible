@@ -1,5 +1,4 @@
 version: "3.7"
-
 services:
   kratos-migrate:
     image: oryd/kratos:v1.1.0
@@ -20,21 +19,51 @@ services:
 
   kratos-selfservice-ui-node:
     image: oryd/kratos-selfservice-ui-node:v1.1.0
+    depends_on:
+      - kratos
     environment:
-      - KRATOS_PUBLIC_URL=http://haex.space:4433/
-      - COOKIE_SECRET=234723872348787487435rdsf
-      - CSRF_COOKIE_NAME=kratos_ui
-      - CSRF_COOKIE_SECRET=awjdhu23z428973z4232345gw
-      - PORT=4455
-      - KRATOS_BROWSER_URL=http://haex.space:4433/
+      - KRATOS_PUBLIC_URL=http://kratos:4433/
+      #- KRATOS_BROWSER_URL=http://${DOMAIN_NAME}:4433/
+      #- PORT=${KRATOS_SELFSERVICE_PORT}
+      #- SECURITY_MODE=
 
-      #- JWKS_URL=http://oathkeeper:4456/.well-known/jwks.json
-      #- SECURITY_MODE=jwks
+      - COOKIE_SECRET=lnawdhsaeudiw3r9w3r9u40t8402hjwjks
+      - CSRF_COOKIE_NAME=kratos_ui
+      - CSRF_COOKIE_SECRET=28349283uhfkjliaukjyslöaj
+
+      # oathkeeper
+      - PORT=${KRATOS_SELFSERVICE_PORT}
+      - KRATOS_BROWSER_URL=http://auth.${DOMAIN_NAME}:80/.ory/kratos/public
+      - JWKS_URL=http://oathkeeper:4456/.well-known/jwks.json
+      - SECURITY_MODE=jwks
     networks:
       - intranet
     ports:
-      - "4455:4455"
+      - ${KRATOS_SELFSERVICE_PORT}:${KRATOS_SELFSERVICE_PORT}
     restart: on-failure
+
+  oathkeeper:
+    image: oryd/oathkeeper:v0.40
+    depends_on:
+      - kratos
+    ports:
+      - 4455:4455
+      - 4456:4456
+    command: serve proxy --config "/etc/config/oathkeeper/oathkeeper.yml"
+    environment:
+      - LOG_LEVEL=debug
+    restart: on-failure
+    networks:
+      - traefik
+      - intranet
+    volumes:
+      - ./oathkeeper:/etc/config/oathkeeper
+    labels:
+      traefik.enable: true
+
+      #traefik.http.routers.oathkeeper.entryPoints: ${TRAEFIK_ENDPOINT_HTTP_NAME:-web}
+      #traefik.http.routers.oathkeeper.rule: Host(`auth.${DOMAIN_NAME}`)
+      #traefik.http.services.oathkeeper.loadbalancer.server.port: 4455
 
   kratos:
     depends_on:
@@ -47,9 +76,10 @@ services:
     environment:
       - DSN=sqlite:///var/lib/sqlite/db.sqlite?_fk=true
       - LOG_LEVEL=trace
-      - SELFSERVICE_METHODS_PASSWORD_CONFIG_HAVEIBEENPWNED_ENABLED=false
-      #- SERVE_PUBLIC_BASE_URL=http://127.0.0.1:4455/.ory/kratos/public/
-    command: serve --config /etc/config/kratos/kratos.yml  --watch-courier
+
+      # oathkeeper
+      - SERVE_PUBLIC_BASE_URL=http://auth.${DOMAIN_NAME}:80/.ory/kratos/public/
+    command: serve --config /etc/config/kratos/kratos.yml --dev --watch-courier
     volumes:
       - type: volume
         source: kratos-sqlite
@@ -61,22 +91,6 @@ services:
     networks:
       - intranet
 
-  # oathkeeper:
-  #   image: oryd/oathkeeper:v0.40
-  #   depends_on:
-  #     - kratos
-  #   ports:
-  #     - 4455:4455
-  #     - 4456:4456
-  #   command: serve proxy --config "/etc/config/oathkeeper/oathkeeper.yml"
-  #   environment:
-  #     - LOG_LEVEL=debug
-  #   restart: on-failure
-  #   networks:
-  #     - intranet
-  #   volumes:
-  #     - ./oathkeeper:/etc/config/oathkeeper
-
   mailslurper:
     image: oryd/mailslurper:latest-smtps
     ports:
@@ -87,6 +101,9 @@ services:
 
 networks:
   intranet:
+  traefik:
+    name: ${TRAEFIK_NETWORK_NAME:-proxy}
+    external: true
 
 volumes:
   kratos-sqlite:

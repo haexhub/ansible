@@ -67,12 +67,3 @@ http:
     gzip:
       compress: {}
 
-    authelia:
-      forwardAuth:
-        address: https://authelia:9091/api/verify?rd=https%3A%2F%2F{{ authelia.sub_domain }}.{{ domain_name }}%2F
-        trustForwardHeader: true
-        authResponseHeaders:
-          - "Remote-User"
-          - "Remote-Groups"
-          - "Remote-Email"
-          - "Remote-Name"

@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "Bundesgesetze": {
+      "Name": "Bundesgesetze",
+      "Group": "Servers",
+      "Port": 5432,
+      "Username": "postgres",
+      "Host": "bundes_postgres",
+      "SSLMode": "prefer",
+      "MaintenanceDB": "postgres"
+    }
+  }
+}

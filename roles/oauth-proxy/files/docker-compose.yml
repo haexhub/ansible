@@ -1,0 +1,35 @@
+services:
+  oauth-proxy:
+    container_name: oauth-proxy
+    image: quay.io/oauth2-proxy/oauth2-proxy@sha256:b5b5c619c68592b859080af0351f1ec9193a9723eb3405215d8de3e0c17f6731
+    networks:
+      - zitadel
+    ports:
+      - 4180:4180
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:4180/ping"]
+    environment:
+      OAUTH2_PROXY_COOKIE_SECRET: value67892938471
+      OAUTH2_PROXY_EMAIL_DOMAINS: ${DOMAIN_NAME}
+      OAUTH2_PROXY_CLIENT_SECRET: awdawdaefaefarfa
+      OAUTH2_PROXY_CLIENT_ID: 123456.apps.googleusercontent.com
+    labels:
+      traefik.enable: true
+      traefik.http.middlewares.auth-headers.headers.sslRedirect: true
+      traefik.http.middlewares.auth-headers.headers.stsSeconds: 315360000
+      traefik.http.middlewares.auth-headers.headers.browserXssFilter: true
+      traefik.http.middlewares.auth-headers.headers.contentTypeNosniff: true
+      traefik.http.middlewares.auth-headers.headers.forceSTSHeader: true
+      traefik.http.middlewares.auth-headers.headers.sslHost: ${DOMAIN_NAME}
+      traefik.http.middlewares.auth-headers.headers.stsIncludeSubdomains: true
+      traefik.http.middlewares.auth-headers.headers.stsPreload: true
+      traefik.http.middlewares.auth-headers.headers.frameDeny: true
+      traefik.http.middlewares.oauth-auth.forwardAuth.address: http://oauth-proxy:4180/oauth2/auth
+      traefik.http.middlewares.oauth-auth.forwardAuth.trustForwardHeader: true
+
+      traefik.routers.oauth.rule: PathPrefix(`/oauth2/`)
+      traefik.routers.oauth.middlewares: auth-headers,oauth-auth
+
+networks:
+  zitadel:
+    external: true

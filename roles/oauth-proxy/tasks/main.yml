@@ -1,0 +1,16 @@
+---
+- name: prepare oauth-proxy
+  ansible.builtin.include_tasks: "{{ item }}"
+  loop:
+    - from_scratch.yml
+    - create_env_file.yml
+
+- name: place oauth-proxy docker-compose file in the right directory
+  copy:
+    src: roles/oauth-proxy/files/docker-compose.yml
+    dest: /usr/share/docker/oauth-proxy/docker-compose.yml
+
+- name: start oauth-proxy container
+  community.docker.docker_compose_v2:
+    project_src: /usr/share/docker/oauth-proxy
+    state: present

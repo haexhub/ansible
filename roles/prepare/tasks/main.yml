@@ -2,3 +2,7 @@
 - name: create traefik network
   docker_network:
     name: "{{ traefik.network_name | default(proxy) }}"
+
+- name: create zitadel network
+  docker_network:
+    name: "{{ zitadel.network_name | default(zitadel) }}"

@@ -1,0 +1,112 @@
+services:
+  zitadel:
+    container_name: zitadel
+    extends:
+      service: zitadel-init
+    command: 'start-from-setup --init-projections --masterkey "MasterkeyNeedsToHave32Characters" --steps /zitadel.init-steps.yml'
+    #image: "ghcr.io/zitadel/zitadel:latest"
+    #command: 'start-from-init --masterkey "MasterkeyNeedsToHave32Characters" --tlsMode disabled'
+    environment:
+      ZITADEL_EXTERNALPORT: ${TRAEFIK_ENDPOINT_HTTPS_PORT:-433}
+      ZITADEL_EXTERNALDOMAIN: ${SUB_DOMAIN_NAME:-zitadel}.${DOMAIN_NAME}
+      ZITADEL_EXTERNALSECURE: true
+      ZITADEL_TLS_ENABLED: false
+      # database configuration
+      ZITADEL_DATABASE_POSTGRES_HOST: ${ZITADEL_DATABASE_POSTGRES_HOST:-db}
+      ZITADEL_DATABASE_POSTGRES_PORT: ${ZITADEL_DATABASE_POSTGRES_PORT:-5432}
+      ZITADEL_DATABASE_POSTGRES_DATABASE: ${ZITADEL_DATABASE_POSTGRES_DATABASE:-zitadel}
+      ZITADEL_DATABASE_POSTGRES_USER_USERNAME: ${ZITADEL_DATABASE_POSTGRES_USER_USERNAME:-zitadel}
+      ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: ${ZITADEL_DATABASE_POSTGRES_USER_PASSWORD:-zitadel}
+      ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: ${ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE:-disable}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: ${ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME:-postgres}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: ${ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD:-postgres}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE: ${ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE:-disable}
+    networks:
+      - "zitadel"
+    ports:
+      - 8080:8080
+    depends_on:
+      zitadel-init:
+        condition: "service_completed_successfully"
+      db:
+        condition: "service_healthy"
+    volumes:
+      #- ./zitadel.yaml:/zitadel.yaml
+      - ./zitadel.init-steps.yml:/zitadel.init-steps.yml
+    labels:
+      traefik.enable: true
+      #traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}
+      #traefik.http.routers.zitadel.entrypoints: ${TRAEFIK_ENDPOINT_HTTP_NAME}
+      #traefik.http.routers.zitadel.rule: Host(`${DOMAIN_NAME}`)
+      traefik.http.routers.zitadel.rule: Host(`${SUB_DOMAIN_NAME:-zitadel}.${DOMAIN_NAME}`)
+      traefik.http.routers.zitadel.entrypoints: ${TRAEFIK_ENDPOINT_HTTPS_NAME:-web_secure}
+      traefik.http.routers.zitadel.tls.certresolver: ${TRAEFIK_LETS_ENCRYPT_RESOLVER:-http_resolver_staging}
+
+      #traefik.http.routers.zitadel.service: zitadel
+      #traefik.http.services.zitadel.loadbalancer.passHostHeader: true
+      #traefik.http.services.zitadel.loadbalancer.server.port: 8080
+      #traefik.http.services.zitadel.loadbalancer.scheme: h2c
+
+  zitadel-init:
+    user: "1000"
+    image: "${ZITADEL_IMAGE:-ghcr.io/zitadel/zitadel:latest}"
+    command: "init"
+    depends_on:
+      db:
+        condition: "service_healthy"
+    environment:
+      # Using an external domain other than localhost proofs, that the proxy configuration works.
+      # If ZITADEL can't resolve a requests original host to this domain,
+      # it will return a 404 Instance not found error.
+      ZITADEL_EXTERNALDOMAIN: ${SUB_DOMAIN_NAME:-zitadel}.${DOMAIN_NAME}
+      # In case something doesn't work as expected,
+      # it can be handy to be able to read the access logs.
+      ZITADEL_LOGSTORE_ACCESS_STDOUT_ENABLED: true
+      # For convenience, ZITADEL should not ask to change the initial admin users password.
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED: false
+      # database configuration
+      ZITADEL_DATABASE_POSTGRES_HOST: ${ZITADEL_DATABASE_POSTGRES_HOST:-db}
+      ZITADEL_DATABASE_POSTGRES_PORT: ${ZITADEL_DATABASE_POSTGRES_PORT:-5432}
+      ZITADEL_DATABASE_POSTGRES_DATABASE: ${ZITADEL_DATABASE_POSTGRES_DATABASE:-zitadel}
+      ZITADEL_DATABASE_POSTGRES_USER_USERNAME: ${ZITADEL_DATABASE_POSTGRES_USER_USERNAME:-zitadel}
+      ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: ${ZITADEL_DATABASE_POSTGRES_USER_PASSWORD:-zitadel}
+      ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: ${ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE:-disable}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: ${ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME:-postgres}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: ${ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD:-postgres}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE: ${ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE:-disable}
+    networks:
+      - "zitadel"
+    volumes:
+      - ./zitadel.init-steps.yml:/zitadel.init-steps.yml
+    healthcheck:
+      test: ["CMD", "/app/zitadel", "ready"]
+      interval: "10s"
+      timeout: "5s"
+      retries: 5
+      start_period: "10s"
+
+  db:
+    restart: "always"
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD:-postgres}
+      ZITADEL_DATABASE_POSTGRES_DATABASE: ${ZITADEL_DATABASE_POSTGRES_DATABASE:-zitadel}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 5s
+      timeout: 60s
+      retries: 10
+      start_period: 5s
+    ports:
+      - ${ZITADEL_DATABASE_POSTGRES_PORT:-5432}:${ZITADEL_DATABASE_POSTGRES_PORT:-5432}
+    networks:
+      - "zitadel"
+    volumes:
+      - "zitadel_data:/var/lib/postgresql/data:rw"
+
+networks:
+  zitadel:
+    external: true
+volumes:
+  zitadel_data:

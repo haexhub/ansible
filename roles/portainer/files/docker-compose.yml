@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   portainer:
     restart: unless-stopped
@@ -13,6 +11,7 @@ services:
       - portainer_data:/data
     networks:
       - traefik
+      - zitadel
     ports:
       - 19443:9443
       - 19000:9000
@@ -20,14 +19,18 @@ services:
     labels:
       traefik.enable: true
       traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}
-      traefik.http.routers.portainer.entrypoints: ${TRAEFIK_HTTP_ENDPOINT}
-      traefik.http.routers.portainer.rule: Host(`portainer.${DOMAIN_NAME}`)
-      traefik.http.routers.portainer_secure.rule: Host(`portainer.${DOMAIN_NAME}`)
-      traefik.http.routers.portainer_secure.entrypoints: ${TRAEFIK_HTTPS_ENDPOINT}
+      traefik.http.routers.portainer.entrypoints: ${TRAEFIK_ENDPOINT_HTTP_NAME:-web}
+      traefik.http.routers.portainer.rule: Host(`${SUB_DOMAIN_NAME}.${DOMAIN_NAME}`)
+      traefik.http.routers.portainer_secure.rule: Host(`${SUB_DOMAIN_NAME}.${DOMAIN_NAME}`)
+      traefik.http.routers.portainer_secure.entrypoints: ${TRAEFIK_ENDPOINT_HTTPS_NAME:-web_secure}
       traefik.http.routers.portainer_secure.tls.certresolver: ${TRAEFIK_LETS_ENCRYPT_RESOLVER:-http_resolver_staging}
       traefik.http.services.portainer.loadbalancer.server.port: 9000
-      #traefik.http.routers.portainer_secure.middlewares: authelia@file
-    command: --admin-password ${ADMIN_PASSWORD}
+      #traefik.http.routers.portainer_secure.middlewares: oauth-auth
+      #traefik.http.services.portainer.loadbalancer.server.url: "h2c://zitadel:8080"
+
+      #traefik.http.routers.portainer.middlewares: zitadel@file
+
+    command: --admin-password ${ADMIN_PASSWORD} --log-level DEBUG
 
 volumes:
   portainer_data:
@@ -36,4 +39,6 @@ volumes:
 networks:
   traefik:
     name: ${TRAEFIK_NETWORK_NAME:-proxy}
+    external: true
+  zitadel:
     external: true

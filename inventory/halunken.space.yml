@@ -15,7 +15,6 @@ halunken_space:
       image_version: latest
       image: traefik
       lets_encrypt:
-        email: hexxx@ok.de
         storage:
           http_resolver: /acme_letsencrypt.json
           tls_resolver: /tls_letsencrypt.json
@@ -24,17 +23,5 @@ halunken_space:
       http_port: 80
       https_port: 433
 
-    seaweed:
-      cors:
-        allowed:
-          origins: "*"
-
-    authelia:
-      sub_domain: auth
-      default_redirection_url: https://halunken.space
-      notifier:
-        smtp:
-          host: smtp.ok.de
-          port: 587
-          sender: hexxx@ok.de
-          username: martin.drechsel@ok.de
+    bundesgestze:
+      sub_domain_name: bundesgesetze

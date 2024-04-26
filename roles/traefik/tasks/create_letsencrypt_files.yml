@@ -1,12 +1,24 @@
 ---
+- name: Check if acme_letsencrypt.json file exists
+  stat:
+    path: /usr/share/docker/traefik/acme_letsencrypt.json
+  register: acme_letsencrypt_file
+
 - name: create letsencrypt acme json
   ansible.builtin.file:
     mode: "600"
     path: /usr/share/docker/traefik/acme_letsencrypt.json
     state: touch
+  when: not acme_letsencrypt_file.stat.exists or traefik.from_scratch == true or from_scratch == true
+
+- name: Check that the tls_letsencrypt.json file exists
+  stat:
+    path: /usr/share/docker/traefik/tls_letsencrypt.json
+  register: tls_letsencrypt_file
 
 - name: create letsencrypt tls json
   ansible.builtin.file:
     mode: "600"
     path: /usr/share/docker/traefik/tls_letsencrypt.json
     state: touch
+  when: not tls_letsencrypt_file.stat.exists or traefik.from_scratch == true or from_scratch == true

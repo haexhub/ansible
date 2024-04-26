@@ -1,21 +1,8 @@
----
-- name: remove env file if exists
-  ansible.builtin.file:
-    path: /usr/share/docker/kratos/.env
-    state: absent
-
-- name: create kratos env file
-  ansible.builtin.blockinfile:
-    path: /usr/share/docker/kratos/.env
-    create: true
-    marker: "# {mark} Ansible set environment"
-    block: |
-      DOMAIN_NAME={{ domain_name }}
-      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
-      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
-      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
-      TRAEFIK_LETS_ENCRYPT_RESOLVER={{ (mode == "production") | ternary("http_resolver", "http_resolver_staging") }}
-      COMPOSE_PROJECT_NAME=kratos
+- name: prepare kratos
+  ansible.builtin.include_tasks: "{{ item }}"
+  loop:
+    - from_scratch.yml
+    - create_env_file.yml
 
 - name: copy kratos config folder
   ansible.builtin.copy:
@@ -27,8 +14,18 @@
     src: roles/kratos/files/kratos/kratos.yml.j2
     dest: /usr/share/docker/kratos/config/kratos.yml
 
+- name: copy oathkeeper config folder
+  ansible.builtin.copy:
+    src: roles/kratos/files/oathkeeper/
+    dest: /usr/share/docker/kratos/oathkeeper/
+
+- name: create access rules config from jinja
+  ansible.builtin.template:
+    src: roles/kratos/files/oathkeeper/access-rules.yml.j2
+    dest: /usr/share/docker/kratos/oathkeeper/access-rules.yml
+
 - name: place kratos docker-compose file in the right directory
-  copy:
+  ansible.builtin.copy:
     src: roles/kratos/files/docker-compose.yml
     dest: /usr/share/docker/kratos/docker-compose.yml
 

@@ -1,0 +1,19 @@
+---
+- name: check if oauth-proxy directory exists
+  ansible.builtin.stat:
+    path: /usr/share/docker/oauth-proxy
+  register: oauth_proxy_directory
+
+- name: remove oauth-proxy folder and env file if exists
+  block:
+    - name: stop oauth-proxy stack
+      community.docker.docker_compose_v2:
+        project_src: /usr/share/docker/oauth-proxy
+        state: absent
+      ignore_errors: true
+
+    - name: remove directory
+      ansible.builtin.file:
+        path: /usr/share/docker/oauth-proxy
+        state: absent
+  when: oauth_proxy_directory.stat.exists and (oauth_proxy.from_scratch == true or from_scratch == true)

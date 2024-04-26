@@ -7,7 +7,10 @@
   roles:
     #- docker_debian
     #- vim_debian
+    - prepare
     - traefik
+    - zitadel
+    #- oauth-proxy
     #- authelia
     - portainer
     #- vaultwarden
@@ -16,4 +19,4 @@
     #- homarr
     #- jellyfin
     #- seaweed
-    - kratos
+    #- kratos

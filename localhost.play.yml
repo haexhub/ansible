@@ -1,0 +1,19 @@
+- name: deploy services on localhost
+  hosts: localhost
+  connection: local
+  vars_files:
+    - secrets.yml
+  vars:
+    domain_name: localhost
+    mode: localhost # development or production or localhost
+    from_scratch: false
+  #gather_facts: no
+  roles:
+    #- mattermost
+    - bundesgesetze
+  tasks:
+    - name: debug
+      ansible.builtin.shell: "id -u ${whoami}"
+      register: "output"
+
+    - debug: var=output.stdout_lines

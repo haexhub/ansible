@@ -1,25 +1,12 @@
 ---
-- name: remove env file if exists
-  ansible.builtin.file:
-    path: /usr/share/docker/portainer/.env
-    state: absent
-
-- name: create portainer env file
-  ansible.builtin.blockinfile:
-    path: /usr/share/docker/portainer/.env
-    create: true
-    marker: "# {mark} Ansible set environment"
-    block: |
-      ADMIN_PASSWORD={{ secrets.portainer.admin_password }}
-      DOMAIN_NAME={{ domain_name }}
-      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
-      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
-      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
-      TRAEFIK_LETS_ENCRYPT_RESOLVER={{ (mode == "production") | ternary("http_resolver", "http_resolver_staging") }}
-      COMPOSE_PROJECT_NAME=portainer
+- name: prepare portainer
+  ansible.builtin.include_tasks: "{{ item }}"
+  loop:
+    - from_scratch.yml
+    - create_env_file.yml
 
 - name: place portainer docker-compose file in the right directory
-  copy:
+  ansible.builtin.copy:
     src: roles/portainer/files/docker-compose.yml
     dest: /usr/share/docker/portainer/docker-compose.yml
 

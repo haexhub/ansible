@@ -1,0 +1,14 @@
+- name: place files and create folders
+  ansible.posix.synchronize:
+    src: roles/bundesgesetze/files/
+    dest: "{{ bundesgesetze.root_directory }}"
+    recursive: true
+    rsync_opts:
+      - "--exclude=xml_import/Downloads"
+      - "--exclude=xml_import/.venv"
+      - "--exclude=*.log"
+
+- name: create Download folder for xml files
+  ansible.builtin.file:
+    dest: "{{ bundesgesetze.root_directory }}/xml_import/Downloads"
+    state: directory

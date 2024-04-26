@@ -5,13 +5,23 @@ haex_space:
   vars:
     mode: development # development or production
     domain_name: haex.space
+    from_scratch: true
 
     traefik:
+      from_scratch: false
       container_name: traefik
       hostname: traefik
-      sub_domain: traefik
-      http_endpoint: web
-      https_endpoint: web_secure
+      sub_domain_name: traefik
+      endpoint:
+        http:
+          name: web
+          port: 80
+        https:
+          name: web_secure
+          port: 443
+        ping:
+          name: ping
+          port: 88
       image_version: latest
       image: traefik
       lets_encrypt:
@@ -20,9 +30,6 @@ haex_space:
           http_resolver: /acme_letsencrypt.json # absolute path needed
           tls_resolver: /tls_letsencrypt.json # absolute path needed
       network_name: proxy
-      ping_port: 88
-      http_port: 80
-      https_port: 433
 
     crowdsec:
       container_name: crowdsec
@@ -44,42 +51,26 @@ haex_space:
       crowdsec_name: crowdsec
       crowdsec_subnet_ipv4: 172.31.0.0/16
 
-    nextcloud:
-      image:
-        name: nextcloud
-        version: latest
-      timezone: Europe/Berlin
-      admin_username: admin
-      hostname: nextcloud
+    portainer:
+      from_scratch: true
+      sub_domain_name: portainer
 
-      postgres:
-        image:
-          name: postgres
-          version: latest
-        database:
-          name: nextcloud
-          user: nextcloud
+    zitadel:
+      from_scratch: true
+      network_name: zitadel
+      sub_domain_name: zitadel
+      database:
+        postgres:
+          host: db
+          port: 5432
+          database: zitadel
+          user:
+            name: zitadel
+            ssl_mode: disable
+          admin:
+            user:
+              name: zitadel
+            ssl_mode: disable
 
-      redis:
-        image:
-          name: redis
-          version: alpine
-
-    vaultwarden:
-      port: 3080
-      image:
-        version: latest
-
-    authelia:
-      sub_domain: auth
-      default_redirection_url: https://haex.space
-      notifier:
-        smtp:
-          host: smtp.ok.de
-          port: 587
-          sender: hexxx@ok.de
-          username: martin.drechsel@ok.de
-
-    kratos:
-      selfservice:
-        port: 4455
+    oauth_proxy:
+      from_scratch: true

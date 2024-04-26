@@ -1,0 +1,16 @@
+- name: create kratos env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/kratos/.env
+    create: true
+    marker: "# {mark} Ansible set environment"
+    block: |
+      DOMAIN_NAME={{ domain_name }}
+      TRAEFIK_ENDPOINT_HTTP_NAME={{ traefik.endpoint.http.name }}
+      TRAEFIK_ENDPOINT_HTTPS_NAME={{ traefik.endpoint.https.name }}
+      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
+      TRAEFIK_LETS_ENCRYPT_RESOLVER={{ (mode == "production") | ternary("http_resolver", "http_resolver_staging") }}
+      COMPOSE_PROJECT_NAME=kratos
+
+      KRATOS_SELFSERVICE_PORT={{ kratos.selfservice.port }}
+
+    state: present

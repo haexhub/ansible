@@ -1,0 +1,28 @@
+- name: Check if .env file exists
+  ansible.builtin.stat:
+    path: /usr/share/docker/zitadel/.env
+  register: env_file
+
+- name: create zitadel env file
+  ansible.builtin.blockinfile:
+    path: /usr/share/docker/zitadel/.env
+    create: true
+    marker: "# {mark} Ansible set environment"
+    block: |
+      DOMAIN_NAME={{ domain_name }}
+      SUB_DOMAIN_NAME={{ zitadel.sub_domain_name }}
+      TRAEFIK_ENDPOINT_HTTP_NAME={{ traefik.endpoint.http.name }}
+      TRAEFIK_ENDPOINT_HTTP_PORT={{ traefik.endpoint.http.port }}
+      TRAEFIK_ENDPOINT_HTTPS_NAME={{ traefik.endpoint.https.name }}
+      TRAEFIK_ENDPOINT_HTTPS_PORT={{ traefik.endpoint.https.port }}
+      TRAEFIK_LETS_ENCRYPT_RESOLVER={{ (mode == "production") | ternary("http_resolver", "http_resolver_staging") }}
+
+      ZITADEL_DATABASE_POSTGRES_HOST={{ zitadel.database.postgres.host }}
+      ZITADEL_DATABASE_POSTGRES_PORT={{ zitadel.database.postgres.port }}
+      ZITADEL_DATABASE_POSTGRES_DATABASE={{ zitadel.database.postgres.database }}
+      ZITADEL_DATABASE_POSTGRES_USER_USERNAME={{ zitadel.database.postgres.user.name }}
+      ZITADEL_DATABASE_POSTGRES_USER_PASSWORD={{ secrets.zitadel.database.postgres.user.password }}
+      ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE={{ zitadel.database.postgres.user.ssl_mode }}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME={{ zitadel.database.postgres.admin.user.name }}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD={{ secrets.zitadel.database.postgres.admin.password }}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE={{ zitadel.database.postgres.admin.ssl_mode }}

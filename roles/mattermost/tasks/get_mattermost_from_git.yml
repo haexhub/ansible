@@ -1,0 +1,22 @@
+- name: clone git repository
+  ansible.builtin.git:
+    repo: https://github.com/mattermost/docker
+    dest: "{{ mattermost.root_directory }}/app/git_source"
+
+- name: create required volume directories
+  ansible.builtin.file:
+    state: directory
+    path: "{{ mattermost.root_directory }}/app/volumes/{{ mattermost_directory }}"
+    group: haex
+  become: yes
+  become_user: mattermost
+  loop:
+    - config
+    - data
+    - logs
+    - plugins
+    - client/plugins
+    - bleeve-indexes
+    - database
+  loop_control:
+    loop_var: mattermost_directory

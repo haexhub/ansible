@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   traefik:
     image: ${TRAEFIK_IMAGE:-traefik}:${TRAEFIK_IMAGE_VERSION:-latest}
@@ -23,11 +21,12 @@ services:
       - NET_BIND_SERVICE
       - DAC_READ_SEARCH
     ports:
-      - 80:80
-      - 443:443
-      #- ${TRAEFIK_PING_PORT:-8080}:8080
+      - 80:${TRAEFIK_ENDPOINT_HTTP_PORT:-80}
+      - 443:${TRAEFIK_ENDPOINT_HTTPS_PORT:-443}
+    #   - 8080:8080
     networks:
       - traefik
+      - zitadel
     volumes:
       - ./acme_letsencrypt.json:${TRAEFIK_LETS_ENCRYPT_STORAGE_HTTP_RESOLVER:-/acme_letsencrypt.json}
       - ./dynamic_config.yml:/dynamic_config.yml:ro
@@ -39,41 +38,26 @@ services:
     labels:
       traefik.enable: true
 
-      traefik.http.routers.traefik.entryPoints: ${TRAEFIK_HTTP_ENDPOINT:-web}
-      traefik.http.routers.traefik.rule: Host(`traefik.${DOMAIN_NAME}`)
+      traefik.http.routers.traefik.entryPoints: ${TRAEFIK_ENDPOINT_HTTP_NAME:-web}
+      traefik.http.routers.traefik.rule: Host(`${TRAEFIK_SUB_DOMAIN_NAME:-traefik}.${DOMAIN_NAME}`)
       traefik.http.routers.traefik.service: api@internal
 
-      traefik.http.routers.traefik_secure.entryPoints: ${TRAEFIK_HTTPS_ENDPOINT:-web_secure}
-      traefik.http.routers.traefik_secure.rule: Host(`traefik.${DOMAIN_NAME}`)
+      traefik.http.routers.traefik_secure.entryPoints: ${TRAEFIK_ENDPOINT_HTTPS_NAME:-web_secure}
+      traefik.http.routers.traefik_secure.rule: Host(`${TRAEFIK_SUB_DOMAIN_NAME:-traefik}.${DOMAIN_NAME}`)
       traefik.http.routers.traefik_secure.service: api@internal
       traefik.http.routers.traefik_secure.tls: true
       traefik.http.routers.traefik_secure.tls.certresolver: ${TRAEFIK_LETS_ENCRYPT_RESOLVER:-http_resolver_staging}
 
-      #traefik.http.routers.traefik_secure.middlewares: authelia@file
-      traefik.http.routers.pingweb.rule: PathPrefix(`/ping`)
-      traefik.http.routers.pingweb.service: ping@internal
-      traefik.http.routers.pingweb.entryPoints: ${TRAEFIK_HTTPS_ENDPOINT:-web_secure}
-
-      # traefik.http.middlewares.authelia.forwardAuth.address: http://authelia:9091/api/verify?rd=https://${AUTHELIA_SUB_DOMAIN}.${DOMAIN_NAME}
-      # traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders: "Remote-User,Remote-Groups,Remote-Email,Remote-Name"
-      # traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader: true
-      #traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}
-      ###traefik.enable: true
-      ###traefik.http.services.traefik.loadbalancer.server.port: 8080
-      ###traefik.http.routers.traefik.service: api@internal
-      ###traefik.http.routers.traefik.entryPoints: ${TRAEFIK_HTTP_ENDPOINT:-web}
-      ###traefik.http.routers.traefik.rule: Host(`traefik.${DOMAIN_NAME}`)
-
-      #traefik.http.routers.traefik_secure.tls: true
-      #traefik.http.routers.traefik_secure.service: api@internal
-      #traefik.http.routers.traefik_secure.rule: Host(`traefik.${DOMAIN_NAME}`)
-      #traefik.http.routers.traefik_secure.entryPoints: ${TRAEFIK_HTTPS_ENDPOINT:-web_secure}
-      #traefik.http.routers.traefik_secure.tls.certresolver: http_resolver_staging
-
+      # oathkeeper config
+      #traefik.http.middlewares.oathkeeper.forwardauth.address: http://haex.space:4456/decisions
+      #traefik.http.middlewares.oathkeeper.forwardauth.authResponseHeaders: X-Id-Token,Authorization,X-Forwarded-User
+      #traefik.http.middlewares.oathkeeper.forwardauth.trustForwardHeader: true
 networks:
   traefik:
     external: true
     name: ${TRAEFIK_NETWORK_NAME:-proxy}
+  zitadel:
+    external: true
 
 volumes:
   traefik_log:

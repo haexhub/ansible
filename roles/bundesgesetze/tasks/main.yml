@@ -1,0 +1,18 @@
+---
+- name: prepare bundesgesetze for {{ mode }}
+  ansible.builtin.include_tasks: "{{ item }}"
+  loop:
+    - from_scratch.yml
+    - place_files.yml
+    - create_env_file.localhost.yml
+    - start_container.yml
+  when: mode == "localhost"
+
+- name: prepare bundesgesetze for {{ mode }}
+  ansible.builtin.include_tasks: "{{ item }}"
+  loop:
+    - from_scratch.yml
+    - place_files.yml
+    - create_env_file.yml
+    - start_container.yml
+  when: mode != "localhost"

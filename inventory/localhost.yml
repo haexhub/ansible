@@ -1,6 +1,22 @@
-localhost:
+local:
   hosts:
     localhost:
 
   vars:
     domain_name: localhost
+    mode: localhost # development or production or localhost
+
+    mattermost:
+      root_directory: /home/haex/Projekte/ansible/roles/mattermost/app
+      sub_domain_name: mattermost
+      timezone: DE
+      from_scratch: false
+
+    portainer:
+      sub_domain_name: portainer
+      from_scratch: false
+
+    bundesgesetze:
+      root_directory: /home/haex/Projekte/ansible/roles/bundesgesetze/app
+      from_scratch: true
+      sub_domain_name: bundesgesetze
