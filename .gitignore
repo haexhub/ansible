@@ -1,3 +1,6 @@
 secrets.yml
 .vscode
 .venv
+*.log
+roles/bundesgesetze/app
+roles/bundesgesetze/xml_import/Downloads
