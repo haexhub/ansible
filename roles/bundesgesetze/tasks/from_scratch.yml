@@ -1,19 +1,19 @@
 ---
-- name: check if portainer directory exists
+- name: check if bundesgesetze directory exists
   ansible.builtin.stat:
-    path: /usr/share/docker/portainer
-  register: portainer_directory
+    path: "{{ bundesgesetze.root_directory }}"
+  register: bundesgesetze_directory
 
-- name: remove portainer folder and env file if exists
+- name: remove bundesgesetze folder and env file if exists
   block:
-    - name: stop portainer stack
+    - name: stop bundesgesetze stack
       community.docker.docker_compose_v2:
-        project_src: /usr/share/docker/portainer
+        project_src: "{{ bundesgesetze.root_directory }}"
         state: absent
       ignore_errors: true
 
     - name: remove directory
       ansible.builtin.file:
-        path: /usr/share/docker/portainer
+        path: "{{ bundesgesetze.root_directory }}"
         state: absent
-  when: portainer_directory.stat.exists and (portainer.from_scratch == true or from_scratch == true)
+  when: bundesgesetze_directory.stat.exists and (bundesgesetze.from_scratch == true or from_scratch == true)

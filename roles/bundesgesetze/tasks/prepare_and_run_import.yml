@@ -1,0 +1,13 @@
+- name: install dependencies
+  ansible.builtin.pip:
+    chdir: "{{ bundesgesetze.root_directory }}/xml_import"
+    requirements: requirements.txt
+    #virtualenv_command: python3 -m venv .venv
+    virtualenv: .venv
+    virtualenv_python: python3
+
+- name: run import script
+  ansible.builtin.script:
+    chdir: "{{ bundesgesetze.root_directory }}/xml_import"
+    cmd: "{{ bundesgesetze.root_directory }}/xml_import/import_data.py"
+    executable: .venv/bin/python3

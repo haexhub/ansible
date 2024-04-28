@@ -43,7 +43,7 @@ class Bundesgesetze:
 
     index = 0
     for item in items:
-      if (index > 2):
+      if (index > 0):
         break
       else:
         index += 1
@@ -112,6 +112,7 @@ class LawBook:
     
   
   def write_content_to_file(self, content, filename, folder = "./Downloads"):
+    logger.info(f'write file {filename} to folder {folder}\n')
     if (filename):
       with open(f'{folder}/{filename}', "w+") as file:
         file.write(content)
@@ -239,7 +240,7 @@ class LawParagraph:
         "parapgraphs": "textdaten text Content P"
     }
 
-    self.content =  self.get_book_paragraphs(self.xml_tree)
+    self.content = self.get_book_paragraphs(self.xml_tree)
   
   def db_get_book_info(self, book_id):
     sql_select_book = f'SELECT * from {self.db_book_table_name} WHERE id = {book_id};'
