@@ -1,0 +1,4 @@
+- name: start postgres container
+  community.docker.docker_compose_v2:
+    project_src: '{{ postgres.app_directory }}'
+    state: present

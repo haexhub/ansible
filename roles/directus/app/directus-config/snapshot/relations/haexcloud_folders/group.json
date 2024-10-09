@@ -1,0 +1,25 @@
+{
+  "collection": "haexcloud_folders",
+  "field": "group",
+  "related_collection": "haexcloud_groups",
+  "meta": {
+    "junction_field": null,
+    "many_collection": "haexcloud_folders",
+    "many_field": "group",
+    "one_allowed_collections": null,
+    "one_collection": "haexcloud_groups",
+    "one_collection_field": null,
+    "one_deselect_action": "nullify",
+    "one_field": "haexcloud_folders",
+    "sort_field": null
+  },
+  "schema": {
+    "table": "haexcloud_folders",
+    "column": "group",
+    "foreign_key_table": "haexcloud_groups",
+    "foreign_key_column": "id",
+    "constraint_name": "haexcloud_folders_group_foreign",
+    "on_update": "NO ACTION",
+    "on_delete": "SET NULL"
+  }
+}

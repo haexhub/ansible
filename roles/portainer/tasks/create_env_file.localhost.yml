@@ -1,0 +1,16 @@
+- name: Check if .env file exists
+  ansible.builtin.stat:
+    path: '{{ portainer.app_directory }}/.env'
+  register: env_file
+
+- name: create portainer env file
+  ansible.builtin.blockinfile:
+    path: '{{ portainer.app_directory }}/.env'
+    create: true
+    marker: '# {mark} Ansible set environment'
+    block: |
+      ADMIN_PASSWORD={{ secrets.portainer.admin_password }}
+      DOMAIN_NAME={{ domain_name }}
+      SUB_DOMAIN_NAME={{ portainer.sub_domain_name }}
+
+  when: not env_file.stat.exists

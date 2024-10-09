@@ -1,6 +1,0 @@
----
-- name: setup nextcloud
-  include_tasks: "{{ item }}"
-  loop:
-    - create_env_file.yml
-    - place_and_run_compose_file.yml

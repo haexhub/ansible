@@ -1,19 +1,24 @@
 ---
 - name: check if portainer directory exists
   ansible.builtin.stat:
-    path: /usr/share/docker/portainer
+    path: '{{ portainer.app_directory }}'
   register: portainer_directory
 
-- name: remove portainer folder and env file if exists
+- name: stop and remove portainer container
   block:
-    - name: stop portainer stack
+    - name: stop portainer container
       community.docker.docker_compose_v2:
-        project_src: /usr/share/docker/portainer
+        project_src: '{{ portainer.app_directory }}'
         state: absent
       ignore_errors: true
 
-    - name: remove directory
+    - name: remove portainer directory
       ansible.builtin.file:
-        path: /usr/share/docker/portainer
+        path: '{{ portainer.app_directory }}'
         state: absent
   when: portainer_directory.stat.exists and (portainer.from_scratch == true or from_scratch == true)
+
+- name: create app directory
+  ansible.builtin.file:
+    path: '{{ portainer.app_directory }}'
+    state: directory

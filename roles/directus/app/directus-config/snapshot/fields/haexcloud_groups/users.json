@@ -1,0 +1,35 @@
+{
+  "collection": "haexcloud_groups",
+  "field": "users",
+  "type": "alias",
+  "meta": {
+    "collection": "haexcloud_groups",
+    "conditions": null,
+    "display": null,
+    "display_options": null,
+    "field": "users",
+    "group": null,
+    "hidden": false,
+    "interface": "list-m2m",
+    "note": null,
+    "options": {
+      "enableLink": true,
+      "fields": [
+        "directus_users_id.first_name",
+        "directus_users_id.last_name"
+      ],
+      "layout": "table",
+      "tableSpacing": "compact"
+    },
+    "readonly": false,
+    "required": false,
+    "sort": 7,
+    "special": [
+      "m2m"
+    ],
+    "translations": null,
+    "validation": null,
+    "validation_message": null,
+    "width": "full"
+  }
+}

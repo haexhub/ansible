@@ -54,13 +54,6 @@ http:
         - traefik.'{{ domain_name }}'
         customRequestHeaders:
 
-  services:
-    zitadel:
-      loadBalancer:
-        servers:
-        - url: "h2c://zitadel:8080"
-        passHostHeader: true
-
 ping:
   entryPoint: {{ traefik.endpoint.ping.name }}
 

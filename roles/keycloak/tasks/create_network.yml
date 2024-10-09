@@ -1,4 +1,0 @@
----
-- name: create keycloak network
-  community.docker.docker_network:
-    name: keycloak

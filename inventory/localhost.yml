@@ -5,18 +5,30 @@ local:
   vars:
     domain_name: localhost
     mode: localhost # development or production or localhost
-
-    mattermost:
-      root_directory: /home/haex/Projekte/ansible/roles/mattermost/app
-      sub_domain_name: mattermost
-      timezone: DE
-      from_scratch: false
+    app_directory: '~/apps'
 
     portainer:
-      sub_domain_name: portainer
       from_scratch: false
 
-    bundesgesetze:
-      root_directory: /home/haex/Projekte/ansible/roles/bundesgesetze/app
+      app_directory: '{{ vars.app_directory }}/portainer'
+      sub_domain_name: portainer
+
+    postgres:
       from_scratch: true
-      sub_domain_name: bundesgesetze
+
+      app_directory: '{{ app_directory }}/postgres'
+
+    directus:
+      from_scratch: true
+
+      app_directory: '{{ app_directory }}/directus'
+      sub_domain_name: directus
+      protocol: 'http'
+
+      directus_port: 8055
+
+      db_client: 'pg'
+      db_database: 'postgres'
+      db_host: 'postgres'
+      db_port: 5432
+      db_user: 'postgres'

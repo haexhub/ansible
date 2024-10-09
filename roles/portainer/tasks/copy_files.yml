@@ -1,0 +1,5 @@
+- name: copy portainer files
+  ansible.posix.synchronize:
+    src: roles/portainer/files/docker-compose.yml
+    dest: '{{ portainer.app_directory }}/docker-compose.yml'
+    recursive: true

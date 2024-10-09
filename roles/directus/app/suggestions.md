@@ -1,0 +1,5 @@
+"directus-extension-computed-interface": "^1.9.0",
+"directus-extension-editorjs": "^1.5.0",
+"directus-extension-field-actions": "^1.8.4",
+"directus-extension-masked-interface": "^1.1.0",
+"directus-extension-models": "^2.5.2",

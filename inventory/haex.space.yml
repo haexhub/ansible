@@ -6,6 +6,7 @@ haex_space:
     mode: development # development or production
     domain_name: haex.space
     from_scratch: true
+    app_directory: '~/apps'
 
     traefik:
       from_scratch: false
@@ -55,22 +56,16 @@ haex_space:
       from_scratch: true
       sub_domain_name: portainer
 
-    zitadel:
+    directus:
       from_scratch: true
-      network_name: zitadel
-      sub_domain_name: zitadel
-      database:
-        postgres:
-          host: db
-          port: 5432
-          database: zitadel
-          user:
-            name: zitadel
-            ssl_mode: disable
-          admin:
-            user:
-              name: zitadel
-            ssl_mode: disable
 
-    oauth_proxy:
-      from_scratch: true
+      sub_domain_name: directus
+      protocol: 'http'
+
+      directus_port: 8055
+
+      db_client: 'pg'
+      db_database: 'postgres'
+      db_host: 'bundes_postgres'
+      db_port: 5432
+      db_user: 'postgres'

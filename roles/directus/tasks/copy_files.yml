@@ -1,0 +1,4 @@
+- name: copy all directus files in the right directory
+  ansible.builtin.copy:
+    src: roles/directus/files/
+    dest: '{{ app_directory | default(~/apps) }}'

@@ -1,6 +1,0 @@
-- name: install mattermost
-  ansible.builtin.include_tasks: "{{ item }}"
-  loop:
-    - create_mattermost_user.localhost.yml
-    - get_mattermost_from_git.yml
-    - create_env_file.localhost.yml

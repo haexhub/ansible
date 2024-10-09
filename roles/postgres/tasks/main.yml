@@ -1,0 +1,16 @@
+---
+- name: prepare postgres for {{ mode }}
+  ansible.builtin.include_tasks: '{{ item }}'
+  loop:
+    - from_scratch.yml
+    - copy_files.yml
+    - create_env_file.yml
+    - start_container.yml
+#- name: prepare postgres for {{ mode }}
+#  ansible.builtin.include_tasks: '{{ item }}'
+#  loop:
+#    - from_scratch.yml
+#    - place_files_and_folders.yml
+#    - create_env_file.yml
+#    - start_container.yml
+#  when: mode != "localhost"

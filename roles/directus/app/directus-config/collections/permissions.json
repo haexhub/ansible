@@ -1,0 +1,627 @@
+[
+  {
+    "collection": "haexcloud_folders",
+    "action": "create",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "_sync_default_public_policy",
+    "_syncId": "f6e94a32-8586-490f-b09e-f751255c65fd"
+  },
+  {
+    "collection": "haexcloud_folders",
+    "action": "delete",
+    "permissions": {
+      "_and": [
+        {
+          "user_created": {
+            "_eq": "$CURRENT_USER"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "_sync_default_public_policy",
+    "_syncId": "46c7d262-cb32-4e74-8b93-71a5c86812b0"
+  },
+  {
+    "collection": "haexcloud_folders",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "_or": [
+            {
+              "group": {
+                "_in": [
+                  "$CURRENT_USER.haexcloud_groups.haexcloud_groups_id.id"
+                ]
+              }
+            },
+            {
+              "user_created": {
+                "_eq": "$CURRENT_USER"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "_sync_default_public_policy",
+    "_syncId": "a2e84c37-ec61-40f4-a8af-860e31e8a954"
+  },
+  {
+    "collection": "haexcloud_folders",
+    "action": "share",
+    "permissions": {
+      "_and": [
+        {
+          "_or": [
+            {
+              "group": {
+                "_in": [
+                  "$CURRENT_USER.haexcloud_groups.haexcloud_groups_id.id"
+                ]
+              }
+            },
+            {
+              "user_created": {
+                "_eq": "$CURRENT_USER"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "_sync_default_public_policy",
+    "_syncId": "2adbc323-60f0-4dfe-a33f-46402a89522c"
+  },
+  {
+    "collection": "haexcloud_folders",
+    "action": "update",
+    "permissions": {
+      "_and": [
+        {
+          "_or": [
+            {
+              "group": {
+                "_in": [
+                  "$CURRENT_USER.haexcloud_groups.haexcloud_groups_id.id"
+                ]
+              }
+            },
+            {
+              "user_created": {
+                "_eq": "$CURRENT_USER"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "_sync_default_public_policy",
+    "_syncId": "effad9b6-bfa1-4bde-995a-e21c380427e1"
+  },
+  {
+    "collection": "haexcloud_groups_directus_users",
+    "action": "create",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "_sync_default_public_policy",
+    "_syncId": "8f9fdc39-147a-40df-924e-b6024d368c9f"
+  },
+  {
+    "collection": "haexcloud_groups_directus_users",
+    "action": "delete",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "_sync_default_public_policy",
+    "_syncId": "0faf0e98-6d17-42c8-b027-e10739e32c09"
+  },
+  {
+    "collection": "haexcloud_groups_directus_users",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "_sync_default_public_policy",
+    "_syncId": "393fddbd-5e35-4893-a32b-f2522d9ee92e"
+  },
+  {
+    "collection": "haexcloud_groups_directus_users",
+    "action": "share",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "_sync_default_public_policy",
+    "_syncId": "b52bd12a-029c-4043-a382-521e5fb9eaf7"
+  },
+  {
+    "collection": "haexcloud_groups_directus_users",
+    "action": "update",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "_sync_default_public_policy",
+    "_syncId": "53531206-1d58-45b7-a04d-4106a328f413"
+  },
+  {
+    "collection": "haexcloud_groups",
+    "action": "create",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "_sync_default_public_policy",
+    "_syncId": "82f2ce1b-4713-4577-9116-748fdc7a2ba3"
+  },
+  {
+    "collection": "haexcloud_groups",
+    "action": "delete",
+    "permissions": {
+      "_and": [
+        {
+          "user_created": {
+            "_eq": "$CURRENT_USER"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "_sync_default_public_policy",
+    "_syncId": "8af7679e-a5db-48f8-925b-9db1e56f0eda"
+  },
+  {
+    "collection": "haexcloud_groups",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "_or": [
+            {
+              "user_created": {
+                "_eq": "$CURRENT_USER"
+              }
+            },
+            {
+              "users": {
+                "directus_users_id": {
+                  "_eq": "$CURRENT_USER.id"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "_sync_default_public_policy",
+    "_syncId": "a097f2cd-ed0e-4820-94a3-d6df07ce0db9"
+  },
+  {
+    "collection": "haexcloud_groups",
+    "action": "share",
+    "permissions": {
+      "_and": [
+        {
+          "_or": [
+            {
+              "user_created": {
+                "_eq": "$CURRENT_USER"
+              }
+            },
+            {
+              "users": {
+                "directus_users_id": {
+                  "_eq": "$CURRENT_USER.id"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": null,
+    "policy": "_sync_default_public_policy",
+    "_syncId": "fdca2480-defc-4bd2-bc7d-ded9f2a010d8"
+  },
+  {
+    "collection": "haexcloud_groups",
+    "action": "update",
+    "permissions": {
+      "_and": [
+        {
+          "_or": [
+            {
+              "user_created": {
+                "_eq": "$CURRENT_USER"
+              }
+            },
+            {
+              "users": {
+                "directus_users_id": {
+                  "_eq": "$CURRENT_USER.id"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "_sync_default_public_policy",
+    "_syncId": "67b1bce5-6663-4529-b9b4-731817e0cbc6"
+  },
+  {
+    "collection": "directus_dashboards",
+    "action": "create",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "079ed420-52f4-4521-a52c-ad1752eff3dd"
+  },
+  {
+    "collection": "directus_dashboards",
+    "action": "delete",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "1b2b5e94-3e05-49e8-9407-cd58e4878a74"
+  },
+  {
+    "collection": "directus_dashboards",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "ad21d84a-8ad4-4628-9e2e-cc0174f669cf"
+  },
+  {
+    "collection": "directus_dashboards",
+    "action": "update",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "f0dc7dde-c051-4ed3-a825-19c0a98343f4"
+  },
+  {
+    "collection": "directus_files",
+    "action": "create",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "b9579950-1d70-4085-bdf2-7fd3730108e5"
+  },
+  {
+    "collection": "directus_files",
+    "action": "delete",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "8474fe5f-4a70-41e4-b997-97b5c7448323"
+  },
+  {
+    "collection": "directus_files",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "3f18bfb0-efe2-41d4-81f0-9b76d410708b"
+  },
+  {
+    "collection": "directus_files",
+    "action": "update",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "40d41398-c57d-4de7-ae10-c8450cbd8a5b"
+  },
+  {
+    "collection": "directus_flows",
+    "action": "read",
+    "permissions": {
+      "trigger": {
+        "_eq": "manual"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "status",
+      "name",
+      "icon",
+      "color",
+      "options",
+      "trigger"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "c66735b2-4d73-4b54-861a-b746c22e1d62"
+  },
+  {
+    "collection": "directus_folders",
+    "action": "create",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "9b13580f-7fb4-48f2-bf8b-af5645b5b92e"
+  },
+  {
+    "collection": "directus_folders",
+    "action": "delete",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": null,
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "84de88e3-33ee-4d30-8345-68c7301ea69d"
+  },
+  {
+    "collection": "directus_folders",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "b0251039-ef42-4457-89c8-49c9f9ab61bc"
+  },
+  {
+    "collection": "directus_folders",
+    "action": "update",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "7b678b74-7cd2-4c0c-8908-4f8942a719ac"
+  },
+  {
+    "collection": "directus_panels",
+    "action": "create",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "e25eefa3-09ac-4e76-8b3f-74850d2b5105"
+  },
+  {
+    "collection": "directus_panels",
+    "action": "delete",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "2939ef1d-b30f-456b-83bc-3460757fb38f"
+  },
+  {
+    "collection": "directus_panels",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "7a6c5954-1cbe-4dc0-806a-313ced43501d"
+  },
+  {
+    "collection": "directus_panels",
+    "action": "update",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "36ddb05c-1421-4a0e-8944-6d31e6da4cea"
+  },
+  {
+    "collection": "directus_roles",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "7cf7837d-4135-494e-b376-1f0ade979583"
+  },
+  {
+    "collection": "directus_shares",
+    "action": "create",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "0f67fa10-0576-4ee8-aea3-f334fa852b15"
+  },
+  {
+    "collection": "directus_shares",
+    "action": "delete",
+    "permissions": {
+      "user_created": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "9d52ba42-e6a6-4551-b236-869d8bf20f0c"
+  },
+  {
+    "collection": "directus_shares",
+    "action": "read",
+    "permissions": {
+      "_or": [
+        {
+          "role": {
+            "_eq": "$CURRENT_ROLE"
+          }
+        },
+        {
+          "role": {
+            "_null": true
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "75cf3607-7c76-42c6-a86d-99d6e97e77f4"
+  },
+  {
+    "collection": "directus_shares",
+    "action": "update",
+    "permissions": {
+      "user_created": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "cfe03a1b-feb1-4a38-877f-4536f4184ea6"
+  },
+  {
+    "collection": "directus_users",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "haexcloud_groups": {
+            "haexcloud_groups_id": {
+              "_in": [
+                "$CURRENT_USER.haexcloud_groups.haexcloud_groups_id"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "8f8bba37-90fb-40f2-a9eb-31cd10036966",
+    "_syncId": "e85e5278-f9b9-42c1-aece-178901ec8d79"
+  }
+]

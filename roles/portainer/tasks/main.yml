@@ -1,16 +1,17 @@
----
-- name: prepare portainer
-  ansible.builtin.include_tasks: "{{ item }}"
+- name: prepare portainer for {{ mode }}
+  ansible.builtin.include_tasks: '{{ item }}'
   loop:
     - from_scratch.yml
+    - copy_files.localhost.yml
+    - create_env_file.localhost.yml
+    - start_container.yml
+  when: mode == "localhost"
+
+- name: prepare portainer for {{ mode }}
+  ansible.builtin.include_tasks: '{{ item }}'
+  loop:
+    - from_scratch.yml
+    - copy_files.yml
     - create_env_file.yml
-
-- name: place portainer docker-compose file in the right directory
-  ansible.builtin.copy:
-    src: roles/portainer/files/docker-compose.yml
-    dest: /usr/share/docker/portainer/docker-compose.yml
-
-- name: start portainer container
-  community.docker.docker_compose_v2:
-    project_src: /usr/share/docker/portainer
-    state: present
+    - start_container.yml
+  when: mode != "localhost"

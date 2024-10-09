@@ -1,0 +1,17 @@
+- name: Check if .env file exists
+  ansible.builtin.stat:
+    path: '{{ postgres.app_directory }}/.env'
+  register: env_file
+
+- name: create portainer env file
+  ansible.builtin.blockinfile:
+    path: '{{ postgres.app_directory }}/.env'
+    create: true
+    marker: '# {mark} Ansible set environment'
+    block: |
+      DOMAIN_NAME={{ domain_name }}
+      PGADMIN_ADMIN_EMAIL={{ secrets.postgres.pgadmin.admin.email }}
+      PGADMIN_ADMIN_PASSWORD={{ secrets.postgres.pgadmin.admin.password }}
+      POSTGRES_PASSWORD={{ secrets.postgres.admin.password }}
+      POSTGRES_USER=={{ secrets.postgres.admin.user }}
+  when: not env_file.stat.exists

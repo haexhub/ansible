@@ -1,0 +1,29 @@
+- name: Check if .env file exists
+  ansible.builtin.stat:
+    path: '{{ directus.root_directory }}/.env'
+  register: env_file
+
+- name: create directus env file
+  ansible.builtin.blockinfile:
+    path: '{{ directus.root_directory }}/.env'
+    create: true
+    marker: '# {mark} Ansible set environment'
+    block: |
+      DOMAIN_NAME = {{ domain_name }}
+      SUB_DOMAIN_NAME = {{ directus.sub_domain_name }}
+
+      ADMIN_EMAIL = {{ secrets.directus.admin_email }}
+      ADMIN_PASSWORD = {{ secrets.directus.admin_password }}
+
+      SECRET = {{ secrets.directus.secret }}
+      KEY = {{ secrets.directus.secret }}
+
+      DIRECTUS_PORT = {{ directus.directus_port }}
+
+      DB_CLIENT = {{ directus.db_client }}
+      DB_HOST = {{ directus.db_host }}
+      DB_PORT = {{ directus.db_port }}
+      DB_DATABASE = {{ directus.db_database }}
+      DB_USER = {{ directus.db_user }}
+      DB_PASSWORD = {{ secrets.directus.db_password }}
+  when: not env_file.stat.exists
