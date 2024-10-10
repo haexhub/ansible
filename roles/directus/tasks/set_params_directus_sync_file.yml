@@ -7,7 +7,7 @@
   ansible.builtin.replace:
     path: '{{ directus.app_directory }}/directus-sync.config.js'
     regexp: '\$directusUrl'
-    replace: '{{ directus.protocol }}://{{ domain_name }}:{{ directus.directus_port }}'
+    replace: 'http://127.0.0.1:{{ directus.directus_port }}'
 
 - name: replace $directusEmail
   ansible.builtin.replace:

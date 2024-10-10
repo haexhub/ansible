@@ -22,4 +22,7 @@
         name: nodejs
         state: latest
 
+    - name: enable pnpm
+      ansible.builtin.command: corepack enable pnpm
+
   become: true

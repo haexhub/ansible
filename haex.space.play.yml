@@ -9,10 +9,11 @@
     from_scratch: false
 
   roles:
-    - docker_debian
-    - nodejs_debian
-    - vim_debian
-    - traefik
-    - portainer
-    - postgres
-    - directus
+    #- docker_debian
+    #- nodejs_debian
+    #- vim_debian
+    #- traefik
+    #- portainer
+    #- postgres
+    #- directus
+    - haexspace

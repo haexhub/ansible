@@ -1,0 +1,9 @@
+---
+- name: prepare haexspace for {{ mode }}
+  ansible.builtin.include_tasks: '{{ item }}'
+  loop:
+    - from_scratch.yml
+    - clone_repo.yml
+    - copy_files.yml
+    - create_env_file.yml
+    - start_container.yml

@@ -1,0 +1,16 @@
+services:
+  haexspace:
+    container_name: haexspace
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    #volumes:
+    #  - haexspaceData:/app
+    networks:
+      - traefik
+    #ports:
+    #  - 3210:3000
+
+volumes:
+  haexspaceData:

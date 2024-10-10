@@ -1,0 +1,37 @@
+services:
+  haexspace:
+    container_name: haexspace
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    #volumes:
+    #  - haexspaceData:/app
+    networks:
+      - traefik
+    #ports:
+    #  - 3000:3000
+    #healthcheck:
+    #  test: ['CMD', 'curl', '-f', 'http://0.0.0.0:3000']
+    #  interval: 1m30s
+    #  timeout: 10s
+    #  retries: 3
+    #  start_period: 40s
+
+    labels:
+      traefik.enable: true
+      traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}
+      traefik.http.routers.haexspace.entrypoints: ${TRAEFIK_ENDPOINT_HTTP_NAME}
+      traefik.http.routers.haexspace.rule: Host(`${DOMAIN_NAME}`)
+      traefik.http.routers.haexspace_secure.rule: Host(`${DOMAIN_NAME}`)
+      traefik.http.routers.haexspace_secure.entrypoints: ${TRAEFIK_ENDPOINT_HTTPS_NAME}
+      traefik.http.routers.haexspace_secure.tls.certresolver: ${TRAEFIK_LETS_ENCRYPT_RESOLVER:-http_resolver_staging}
+      traefik.http.services.haexspace.loadbalancer.server.port: 3000
+
+volumes:
+  haexspaceData:
+
+networks:
+  traefik:
+    name: ${TRAEFIK_NETWORK_NAME}
+    external: true

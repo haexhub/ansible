@@ -9,6 +9,7 @@ services:
       - ${DIRECTUS_PORT}:8055
     networks:
       - postgres
+      - traefik
     volumes:
       - directus_database:/directus/database
       - directus_uploads:/directus/uploads
@@ -34,19 +35,23 @@ services:
       CORS_ENABLED: true
       CORS_ORIGIN: true
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.directus.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
-      - traefik.http.routers.directus.rule=Host(`${SUB_DOMAIN_NAME}.${DOMAIN_NAME}`)
-      - traefik.http.routers.directus_secure.rule=Host(`${SUB_DOMAIN_NAME}.${DOMAIN_NAME}`)
-      - traefik.http.routers.directus_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
-      - traefik.http.routers.directus_secure.tls.certresolver=le
-      - traefik.http.services.directus.loadbalancer.server.port=8055
+      traefik.enable: true
+      traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}
+      traefik.http.routers.directus.entrypoints: ${TRAEFIK_ENDPOINT_HTTP_NAME}
+      traefik.http.routers.directus.rule: Host(`${SUB_DOMAIN_NAME}.${DOMAIN_NAME}`)
+      traefik.http.routers.directus_secure.rule: Host(`${SUB_DOMAIN_NAME}.${DOMAIN_NAME}`)
+      traefik.http.routers.directus_secure.entrypoints: ${TRAEFIK_ENDPOINT_HTTPS_NAME}
+      traefik.http.routers.directus_secure.tls.certresolver: ${TRAEFIK_LETS_ENCRYPT_RESOLVER:-http_resolver_staging}
+      traefik.http.services.directus.loadbalancer.server.port: 8055
 
 volumes:
-  #directus_database:
+  directus_database:
   directus_uploads:
   directus_extensions:
 
 networks:
   postgres:
     external: true
+  traefik:
+    external: true
+    name: ${TRAEFIK_NETWORK_NAME}

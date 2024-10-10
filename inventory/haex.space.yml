@@ -62,7 +62,7 @@ haex_space:
       app_directory: '{{ app_directory }}/postgres'
 
     directus:
-      from_scratch: true
+      from_scratch: false
 
       app_directory: '{{ app_directory }}/directus'
       sub_domain_name: directus
@@ -78,3 +78,8 @@ haex_space:
 
     nodejs:
       version: 20
+
+    haexspace:
+      from_scratch: true
+      app_directory: '{{ app_directory }}/haexspace'
+      sub_domain_name: haexspace
