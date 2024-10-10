@@ -9,10 +9,10 @@ services:
       - ${DIRECTUS_PORT}:8055
     networks:
       - postgres
-    #volumes:
-    #- directus_database:/directus/database
-    #- directus_uploads:/directus/uploads
-    #- directus_extensions:/directus/extensions
+    volumes:
+      - directus_database:/directus/database
+      - directus_uploads:/directus/uploads
+      - directus_extensions:/directus/extensions
     environment:
       MARKETPLACE_TRUST: all
 
@@ -33,6 +33,15 @@ services:
       ACCESS_TOKEN_TTL: 15m
       CORS_ENABLED: true
       CORS_ORIGIN: true
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.directus.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
+      - traefik.http.routers.directus.rule=Host(`${SUB_DOMAIN_NAME}.${DOMAIN_NAME}`)
+      - traefik.http.routers.directus_secure.rule=Host(`${SUB_DOMAIN_NAME}.${DOMAIN_NAME}`)
+      - traefik.http.routers.directus_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
+      - traefik.http.routers.directus_secure.tls.certresolver=le
+      - traefik.http.services.directus.loadbalancer.server.port=8055
+
 volumes:
   #directus_database:
   directus_uploads:

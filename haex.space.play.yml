@@ -11,7 +11,7 @@
   roles:
     - docker_debian
     - nodejs_debian
-    #- vim_debian
+    - vim_debian
     - traefik
     - portainer
     - postgres
