@@ -10,14 +10,23 @@ services:
       PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: 'True'
       #PGADMIN_CONFIG_CONFIG_DATABASE_URI: "'postgresql://postgres:password@bundes_postgres:5432'"
       PGADMIN_SERVER_JSON_FILE: /servers.json
-    ports:
-      - 8021:80
+    #ports:
+    #  - 8021:80
     networks:
       - postgres
     depends_on:
       - postgres
     #volumes:
     #  - ./servers.json:/servers.json
+    labels:
+      traefik.enable: true
+      traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}
+      traefik.http.routers.pgadmin.entrypoints: ${TRAEFIK_ENDPOINT_HTTP_NAME}
+      traefik.http.routers.pgadmin.rule: Host(`pgadmin.${DOMAIN_NAME}`)
+      traefik.http.routers.pgadmin_secure.rule: Host(`pgadmin.${DOMAIN_NAME}`)
+      traefik.http.routers.pgadmin_secure.entrypoints: ${TRAEFIK_ENDPOINT_HTTPS_NAME}
+      traefik.http.routers.pgadmin_secure.tls.certresolver: ${TRAEFIK_LETS_ENCRYPT_RESOLVER:-http_resolver_staging}
+      traefik.http.services.pgadmin.loadbalancer.server.port: 80
 
   postgres:
     container_name: postgres_default
@@ -29,7 +38,7 @@ services:
     volumes:
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d/
     ports:
-      - 5555:5432
+      - 127.0.0.1:5555:5432
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 5s

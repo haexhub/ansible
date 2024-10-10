@@ -11,10 +11,10 @@ services:
       - portainer_data:/data
     networks:
       - traefik
-    ports:
-      - 19443:9443
-      - 19000:9000
-      - 18000:8000
+    #ports:
+    #  - 19443:9443
+    #  - 19000:9000
+    #  - 18000:8000
     labels:
       traefik.enable: true
       traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}

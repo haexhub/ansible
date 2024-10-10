@@ -5,8 +5,8 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
-    ports:
-      - ${DIRECTUS_PORT}:8055
+    #ports:
+    #  - ${DIRECTUS_PORT}:8055
     networks:
       - postgres
       - traefik
