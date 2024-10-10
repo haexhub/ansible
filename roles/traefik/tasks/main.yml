@@ -1,6 +1,6 @@
 ---
 - name: setup traefik
-  include_tasks: "{{ item }}"
+  include_tasks: '{{ item }}'
   loop:
     - from_scratch.yml
     - create_env_file.yml
@@ -12,9 +12,9 @@
 - name: place traefik docker-compose file in the right directory
   copy:
     src: roles/traefik/files/
-    dest: /usr/share/docker/traefik/
+    dest: '{{ traefik.app_directory }}'
 
 - name: start traefik container
   community.docker.docker_compose_v2:
-    project_src: /usr/share/docker/traefik/
+    project_src: '{{ traefik.app_directory }}'
     state: present

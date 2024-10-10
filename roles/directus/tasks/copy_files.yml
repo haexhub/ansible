@@ -1,4 +1,20 @@
-- name: copy all directus files in the right directory
+- name: copy all directus files in the right directory except compose file
   ansible.builtin.copy:
-    src: roles/directus/files/
-    dest: '{{ app_directory | default(~/apps) }}'
+    src: roles/directus/files/app/
+    dest: '{{ directus.app_directory }}'
+
+    #rsync_opts:
+    #  - '--exclude=docker-compose.yml'
+    #  - '--exclude=docker-compose.localhost.yml'
+
+- name: copy compose file
+  ansible.builtin.copy:
+    dest: '{{ directus.app_directory }}/docker-compose.yml'
+    src: roles/directus/files/docker-compose.localhost.yml
+  when: mode == "localhost"
+
+- name: copy compose file
+  ansible.builtin.copy:
+    dest: '{{ directus.app_directory }}/docker-compose.yml'
+    src: roles/directus/files/docker-compose.yml
+  when: mode != "localhost"

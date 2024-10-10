@@ -4,7 +4,6 @@
     state: directory
 
 - name: copy postgres files
-  ansible.posix.synchronize:
+  ansible.builtin.copy:
     src: roles/postgres/files/
     dest: '{{ postgres.app_directory }}'
-    recursive: true

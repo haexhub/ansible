@@ -1,5 +1,5 @@
 - name: start directus container
   community.docker.docker_compose_v2:
-    project_src: '{{ directus.root_directory }}'
+    project_src: '{{ directus.app_directory }}'
     state: present
     build: always

@@ -12,8 +12,20 @@
         state: absent
       ignore_errors: true
 
+    - name: remove postgres network
+      community.docker.docker_network:
+        name: postgres
+        state: absent
+      ignore_errors: true
+
     - name: remove directory
       ansible.builtin.file:
         path: '{{ postgres.app_directory }}'
         state: absent
   when: postgres_directory.stat.exists and (postgres.from_scratch == true or from_scratch == true)
+
+- name: create postgres network
+  community.docker.docker_network:
+    name: postgres
+    state: present
+    attachable: yes

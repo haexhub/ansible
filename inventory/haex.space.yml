@@ -5,7 +5,6 @@ haex_space:
   vars:
     mode: development # development or production
     domain_name: haex.space
-    from_scratch: true
     app_directory: '~/apps'
 
     traefik:
@@ -13,6 +12,7 @@ haex_space:
       container_name: traefik
       hostname: traefik
       sub_domain_name: traefik
+      app_directory: '{{ app_directory }}/traefik'
       endpoint:
         http:
           name: web
@@ -53,12 +53,18 @@ haex_space:
       crowdsec_subnet_ipv4: 172.31.0.0/16
 
     portainer:
-      from_scratch: true
+      from_scratch: false
+      app_directory: '{{ vars.app_directory }}/portainer'
       sub_domain_name: portainer
+
+    postgres:
+      from_scratch: false
+      app_directory: '{{ app_directory }}/postgres'
 
     directus:
       from_scratch: true
 
+      app_directory: '{{ app_directory }}/directus'
       sub_domain_name: directus
       protocol: 'http'
 
@@ -66,6 +72,9 @@ haex_space:
 
       db_client: 'pg'
       db_database: 'postgres'
-      db_host: 'bundes_postgres'
+      db_host: 'postgres'
       db_port: 5432
       db_user: 'postgres'
+
+    nodejs:
+      version: 20

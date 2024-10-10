@@ -1,0 +1,25 @@
+- block:
+    - name: install requirements
+      ansible.builtin.apt:
+        update_cache: true
+        name:
+          - gnupg
+          - ca-certificates
+
+    - name: add key for docker
+      ansible.builtin.apt_key:
+        url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+
+    - name: add repository for docker
+      ansible.builtin.apt_repository:
+        repo: 'deb [arch=amd64] https://deb.nodesource.com/node_{{ nodejs.version }}.x {{ ansible_distribution_release }} main'
+        state: present
+        update_cache: yes
+
+    - name: install docker-ce and docker compose
+      ansible.builtin.apt:
+        update_cache: true
+        name: nodejs
+        state: latest
+
+  become: true

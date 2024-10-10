@@ -16,8 +16,8 @@ services:
       - postgres
     depends_on:
       - postgres
-    volumes:
-      - ./servers.json:/servers.json
+    #volumes:
+    #  - ./servers.json:/servers.json
 
   postgres:
     container_name: postgres_default
@@ -41,4 +41,5 @@ services:
 
 networks:
   postgres:
-    name: bundes_postgres
+    name: postgres
+    external: true

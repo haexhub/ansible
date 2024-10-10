@@ -1,19 +1,24 @@
 ---
 - name: check if directus directory exists
   ansible.builtin.stat:
-    path: '{{ directus.root_directory }}'
+    path: '{{ directus.app_directory }}'
   register: directus_directory
 
 - name: remove directus folder and env file if exists
   block:
     - name: stop directus stack
       community.docker.docker_compose_v2:
-        project_src: '{{ directus.root_directory }}'
+        project_src: '{{ directus.app_directory }}'
         state: absent
       ignore_errors: true
 
     - name: remove directory
       ansible.builtin.file:
-        path: '{{ directus.root_directory }}'
+        path: '{{ directus.app_directory }}'
         state: absent
   when: directus_directory.stat.exists and (directus.from_scratch == true or from_scratch == true)
+
+- name: create app directory
+  ansible.builtin.file:
+    path: '{{ directus.app_directory }}'
+    state: directory

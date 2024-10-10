@@ -1,4 +1,6 @@
 ---
 - name: create traefik network
-  docker_network:
-    name: "{{ traefik.network_name | default(traefik) }}"
+  community.docker.docker_network:
+    name: '{{ traefik.network_name | default(traefik) }}'
+    state: present
+    attachable: yes

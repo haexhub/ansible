@@ -2,4 +2,4 @@
 - name: create traefik config file from jinja template
   ansible.builtin.template:
     src: roles/traefik/files/traefik.yml.j2
-    dest: /usr/share/docker/traefik/traefik.yml
+    dest: '{{ traefik.app_directory }}/traefik.yml'

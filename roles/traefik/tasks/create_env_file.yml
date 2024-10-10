@@ -1,14 +1,14 @@
 ---
 - name: Check if .env file exists
   ansible.builtin.stat:
-    path: /usr/share/docker/traefik/.env
+    path: '{{ traefik.app_directory }}/.env'
   register: env_file
 
 - name: create traefik env file
   ansible.builtin.blockinfile:
-    path: /usr/share/docker/traefik/.env
+    path: '{{ traefik.app_directory }}/.env'
     create: yes
-    marker: "# {mark} Ansible set environment"
+    marker: '# {mark} Ansible set environment'
     block: |
       DOMAIN_NAME={{ domain_name }}
       TRAEFIK_ENDPOINT_HTTP_NAME={{ traefik.endpoint.http.name }}

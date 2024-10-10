@@ -9,9 +9,9 @@
     create: true
     marker: '# {mark} Ansible set environment'
     block: |
-      DOMAIN_NAME={{ domain_name }}
-      PGADMIN_ADMIN_EMAIL={{ secrets.postgres.pgadmin.admin.email }}
-      PGADMIN_ADMIN_PASSWORD={{ secrets.postgres.pgadmin.admin.password }}
-      POSTGRES_PASSWORD={{ secrets.postgres.admin.password }}
-      POSTGRES_USER=={{ secrets.postgres.admin.user }}
+      DOMAIN_NAME = {{ domain_name }}
+      PGADMIN_ADMIN_EMAIL = {{ secrets.postgres.pgadmin.admin.email }}
+      PGADMIN_ADMIN_PASSWORD = {{ secrets.postgres.pgadmin.admin.password }}
+      POSTGRES_PASSWORD = {{ secrets.postgres.admin.password }}
+      POSTGRES_USER = {{ secrets.postgres.admin.user }}
   when: not env_file.stat.exists

@@ -4,7 +4,7 @@ services:
     container_name: traefik
     hostname: ${TRAEFIK_HOSTNAME:-traefik}
     healthcheck:
-      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      test: ['CMD', 'traefik', 'healthcheck', '--ping']
       interval: 10s
       timeout: 1s
       retries: 3
@@ -26,7 +26,6 @@ services:
     #   - 8080:8080
     networks:
       - traefik
-      - zitadel
     volumes:
       - ./acme_letsencrypt.json:${TRAEFIK_LETS_ENCRYPT_STORAGE_HTTP_RESOLVER:-/acme_letsencrypt.json}
       - ./dynamic_config.yml:/dynamic_config.yml:ro
@@ -56,8 +55,6 @@ networks:
   traefik:
     external: true
     name: ${TRAEFIK_NETWORK_NAME:-proxy}
-  zitadel:
-    external: true
 
 volumes:
   traefik_log:

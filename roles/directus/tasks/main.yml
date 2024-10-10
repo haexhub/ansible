@@ -9,12 +9,14 @@
     - start_container.yml
     - sync_directus.yml
   when: mode == "localhost"
-#- name: prepare directus for {{ mode }}
-#  ansible.builtin.include_tasks: "{{ item }}"
-#  loop:
-#    - from_scratch.yml
-#    - place_files_and_folders.yml
-#    - create_env_file.yml
-#    - start_container.yml
-#    - prepare_and_run_import.yml
-#  when: mode != "localhost"
+
+- name: prepare directus for {{ mode }}
+  ansible.builtin.include_tasks: '{{ item }}'
+  loop:
+    - from_scratch.yml
+    - copy_files.yml
+    - create_env_file.yml
+    - set_params_directus_sync_file.yml
+    - start_container.yml
+    - sync_directus.yml
+  when: mode != "localhost"

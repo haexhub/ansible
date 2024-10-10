@@ -8,7 +8,7 @@ services:
     ports:
       - ${DIRECTUS_PORT}:8055
     networks:
-      - bundes_postgres
+      - postgres
     #volumes:
     #- directus_database:/directus/database
     #- directus_uploads:/directus/uploads
@@ -39,5 +39,5 @@ volumes:
   directus_extensions:
 
 networks:
-  bundes_postgres:
+  postgres:
     external: true

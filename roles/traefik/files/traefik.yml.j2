@@ -43,16 +43,7 @@ entryPoints:
     address: ':{{ traefik.endpoint.https.port }}'
     http:
   
-http:
-  middlewares:
-    zitadel:
-      headers:
-        isDevelopment: false
-        allowedHosts:
-        - '{{ domain_name }}'
-        - portainer.'{{ domain_name }}'
-        - traefik.'{{ domain_name }}'
-        customRequestHeaders:
+
 
 ping:
   entryPoint: {{ traefik.endpoint.ping.name }}

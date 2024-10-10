@@ -5,5 +5,5 @@
 
 - name: Sync directus instance
   ansible.builtin.command:
-    chdir: '{{ directus.root_directory }}'
-    cmd: 'npx directus-sync push'
+    chdir: '{{ directus.app_directory }}'
+    cmd: 'npx --yes directus-sync push'

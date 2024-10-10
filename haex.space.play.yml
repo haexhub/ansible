@@ -3,20 +3,16 @@
   hosts: haex.space
   vars_files:
     - secrets.yml
-  become: true
+  vars:
+    domain_name: haex.space
+    mode: development # development or production or localhost
+    from_scratch: false
+
   roles:
-    #- docker_debian
+    - docker_debian
+    - nodejs_debian
     #- vim_debian
-    - prepare
     - traefik
-    - zitadel
-    #- oauth-proxy
-    #- authelia
     - portainer
-    #- vaultwarden
-    #- rustdesk
-    #- seafile
-    #- homarr
-    #- jellyfin
-    #- seaweed
-    #- kratos
+    - postgres
+    - directus

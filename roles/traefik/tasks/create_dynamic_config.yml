@@ -2,4 +2,4 @@
 - name: create dynamic config file from jinja
   ansible.builtin.template:
     src: roles/traefik/files/dynamic_config.yml.j2
-    dest: /usr/share/docker/traefik/dynamic_config.yml
+    dest: '{{ traefik.app_directory }}/dynamic_config.yml'

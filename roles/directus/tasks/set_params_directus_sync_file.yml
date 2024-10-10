@@ -1,22 +1,22 @@
 - name: Check if directus-sync file exists
   ansible.builtin.stat:
-    path: '{{ directus.root_directory }}/directus-sync.config.js'
+    path: '{{ directus.app_directory }}/directus-sync.config.js'
   register: sync_file
 
 - name: replace $directusUrl
   ansible.builtin.replace:
-    path: '{{ directus.root_directory }}/directus-sync.config.js'
+    path: '{{ directus.app_directory }}/directus-sync.config.js'
     regexp: '\$directusUrl'
-    replace: '{{ directus.protocol }}://0.0.0.0:{{ directus.directus_port }}'
+    replace: '{{ directus.protocol }}://{{ domain_name }}:{{ directus.directus_port }}'
 
 - name: replace $directusEmail
   ansible.builtin.replace:
-    path: '{{ directus.root_directory }}/directus-sync.config.js'
+    path: '{{ directus.app_directory }}/directus-sync.config.js'
     regexp: '\$directusEmail'
     replace: '{{ secrets.directus.admin_email }}'
 
 - name: replace $directusPassword
   ansible.builtin.replace:
-    path: '{{ directus.root_directory }}/directus-sync.config.js'
+    path: '{{ directus.app_directory }}/directus-sync.config.js'
     regexp: '\$directusPassword'
     replace: '{{ secrets.directus.admin_password }}'
