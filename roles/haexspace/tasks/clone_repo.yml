@@ -3,20 +3,3 @@
     depth: 1
     repo: https://github.com/haexhub/haexspace.git
     dest: '{{ haexspace.app_directory }}'
-
-- name: install dependencies
-  community.general.pnpm:
-    production: true
-    path: '{{ haexspace.app_directory }}'
-    state: latest
-
-- name: set correct directus url
-  ansible.builtin.replace:
-    path: '{{ haexspace.app_directory }}/nuxt.config.ts'
-    regexp: "url: 'http://0.0.0.0:8055'"
-    replace: "url: 'https://{{ directus.sub_domain_name }}.{{ domain_name }}'"
-
-- name: build haexspace
-  ansible.builtin.command:
-    cmd: pnpm generate
-    chdir: '{{ haexspace.app_directory }}'

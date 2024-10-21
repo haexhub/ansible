@@ -14,4 +14,9 @@
       PGADMIN_ADMIN_PASSWORD = {{ secrets.postgres.pgadmin.admin.password }}
       POSTGRES_PASSWORD = {{ secrets.postgres.admin.password }}
       POSTGRES_USER = {{ secrets.postgres.admin.user }}
+
+      TRAEFIK_ENDPOINT_HTTP_NAME={{ traefik.endpoint.http.name }}
+      TRAEFIK_ENDPOINT_HTTPS_NAME={{ traefik.endpoint.https.name }}
+      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
+      TRAEFIK_LETS_ENCRYPT_RESOLVER={{ (mode == "production") | ternary("http_resolver", "http_resolver_staging") }}
   when: not env_file.stat.exists

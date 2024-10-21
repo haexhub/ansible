@@ -6,4 +6,5 @@
     - clone_repo.yml
     - copy_files.yml
     - create_env_file.yml
+    - build_app.yml
     - start_container.yml

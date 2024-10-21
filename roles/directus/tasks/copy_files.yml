@@ -7,13 +7,13 @@
     #  - '--exclude=docker-compose.yml'
     #  - '--exclude=docker-compose.localhost.yml'
 
-- name: copy compose file
+- name: copy compose file for {{ mode }}
   ansible.builtin.copy:
     dest: '{{ directus.app_directory }}/docker-compose.yml'
     src: roles/directus/files/docker-compose.localhost.yml
   when: mode == "localhost"
 
-- name: copy compose file
+- name: copy compose file for {{ mode }}
   ansible.builtin.copy:
     dest: '{{ directus.app_directory }}/docker-compose.yml'
     src: roles/directus/files/docker-compose.yml

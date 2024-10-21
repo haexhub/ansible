@@ -6,7 +6,7 @@
   vars:
     domain_name: haex.space
     mode: development # development or production or localhost
-    from_scratch: false
+    from_scratch: true
 
   roles:
     #- docker_debian

@@ -1,12 +1,11 @@
 services:
   directus:
-    #image: directus/directus:11.1.0
     build:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
-    #ports:
-    #  - ${DIRECTUS_PORT}:8055
+    ports:
+      - 127.0.0.1:${DIRECTUS_PORT}:8055
     networks:
       - postgres
       - traefik
@@ -20,6 +19,7 @@ services:
       SECRET: ${SECRET}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      PUBLIC_URL: ${PUBLIC_URL}
       #DB_CLIENT: 'sqlite3'
       #DB_FILENAME: '/directus/database/data.db'
       WEBSOCKETS_ENABLED: 'true'
@@ -41,6 +41,7 @@ services:
       traefik.http.routers.directus.rule: Host(`${SUB_DOMAIN_NAME}.${DOMAIN_NAME}`)
       traefik.http.routers.directus_secure.rule: Host(`${SUB_DOMAIN_NAME}.${DOMAIN_NAME}`)
       traefik.http.routers.directus_secure.entrypoints: ${TRAEFIK_ENDPOINT_HTTPS_NAME}
+      traefik.http.routers.directus_secure.tls: true
       traefik.http.routers.directus_secure.tls.certresolver: ${TRAEFIK_LETS_ENCRYPT_RESOLVER:-http_resolver_staging}
       traefik.http.services.directus.loadbalancer.server.port: 8055
 

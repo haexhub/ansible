@@ -12,6 +12,8 @@
       DOMAIN_NAME = {{ domain_name }}
       SUB_DOMAIN_NAME = {{ directus.sub_domain_name }}
 
+      PUBLIC_URL = https://{{ directus.sub_domain_name }}.{{ domain_name }}
+
       ADMIN_EMAIL = {{ secrets.directus.admin_email }}
       ADMIN_PASSWORD = {{ secrets.directus.admin_password }}
 

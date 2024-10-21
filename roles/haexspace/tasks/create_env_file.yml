@@ -4,7 +4,7 @@
   register: env_file
 
 - block:
-    - name: create haexspace env file
+    - name: create haexspace env file {{ mode }}
       ansible.builtin.blockinfile:
         path: '{{ haexspace.app_directory }}/.env'
         create: true
@@ -12,16 +12,18 @@
         block: |
           DOMAIN_NAME = {{ domain_name }}
           SUB_DOMAIN_NAME = {{ haexspace.sub_domain_name }}
+
+          DIRECTUS_URL = https://{{ directus.sub_domain_name }}.{{ domain_name }}
 
           TRAEFIK_ENDPOINT_HTTP_NAME={{ traefik.endpoint.http.name }}
           TRAEFIK_ENDPOINT_HTTPS_NAME={{ traefik.endpoint.https.name }}
           TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
           TRAEFIK_LETS_ENCRYPT_RESOLVER={{ (mode == "production") | ternary("http_resolver", "http_resolver_staging") }}
-      when: not env_file.stat.exists or haexspace.from_scratch == true or from_scratch == true
+      when: not env_file.stat.exists
   when: mode != "localhost"
 
 - block:
-    - name: create haexspace env file
+    - name: create haexspace env file {{ mode }}
       ansible.builtin.blockinfile:
         path: '{{ haexspace.app_directory }}/.env'
         create: true
@@ -30,5 +32,5 @@
           DOMAIN_NAME = {{ domain_name }}
           SUB_DOMAIN_NAME = {{ haexspace.sub_domain_name }}
 
-      when: not env_file.stat.exists or haexspace.from_scratch == true or from_scratch == true
+      when: not env_file.stat.exists
   when: mode == "localhost"
