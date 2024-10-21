@@ -1,0 +1,10 @@
+- name: install dependencies
+  community.general.pnpm:
+    production: true
+    path: '{{ haexspace.app_directory }}'
+    state: latest
+
+- name: build haexspace
+  ansible.builtin.command:
+    cmd: pnpm generate
+    chdir: '{{ haexspace.app_directory }}'
