@@ -1,0 +1,11 @@
+- name: copy localhost compose file
+  ansible.builtin.copy:
+    src: roles/vaultwarden/files/docker-compose.localhost.yml
+    dest: '{{ vaultwarden.app_directory }}/docker-compose.yml'
+  when: mode == "localhost"
+
+- name: copy compose file
+  ansible.builtin.copy:
+    src: roles/vaultwarden/files/docker-compose.yml
+    dest: '{{ vaultwarden.app_directory }}/docker-compose.yml'
+  when: mode != "localhost"

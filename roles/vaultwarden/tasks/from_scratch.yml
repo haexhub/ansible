@@ -1,0 +1,24 @@
+---
+- name: check if vaultwarden directory exists
+  ansible.builtin.stat:
+    path: '{{ vaultwarden.app_directory }}'
+  register: vaultwarden_directory
+
+- name: remove vaultwarden folder and env file if exists
+  block:
+    - name: stop vaultwarden stack
+      community.docker.docker_compose_v2:
+        project_src: '{{ vaultwarden.app_directory }}'
+        state: absent
+      ignore_errors: true
+
+    - name: remove directory
+      ansible.builtin.file:
+        path: '{{ vaultwarden.app_directory }}'
+        state: absent
+  when: vaultwarden_directory.stat.exists and (vaultwarden.from_scratch == true or from_scratch == true)
+
+- name: create app directory
+  ansible.builtin.file:
+    path: '{{ vaultwarden.app_directory }}'
+    state: directory

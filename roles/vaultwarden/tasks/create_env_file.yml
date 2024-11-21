@@ -1,0 +1,39 @@
+- name: Check if .env file exists
+  ansible.builtin.stat:
+    path: '{{ vaultwarden.app_directory }}/.env'
+  register: env_file
+
+- block:
+    - name: create vaultwarden env file {{ mode }}
+      ansible.builtin.blockinfile:
+        path: '{{ vaultwarden.app_directory }}/.env'
+        create: true
+        marker: '# {mark} Ansible set environment'
+        block: |
+          DOMAIN_NAME = {{ domain_name }}
+          SUB_DOMAIN_NAME = {{ vaultwarden.sub_domain_name }}
+
+          VAULTWARDEN_URL = {{ vaultwarden.sub_domain_name }}.{{ domain_name }}
+          VAULTWARDEN_PORT = {{ vaultwarden.port }}
+          VAULTWARDEN_ADMIN_TOKEN={{ secrets.vaultwarden.admin_token }}
+          VAULTWARDEN_IMAGE_VERSION={{ vaultwarden.image.version }}
+
+          TRAEFIK_ENDPOINT_HTTP_NAME={{ traefik.endpoint.http.name }}
+          TRAEFIK_ENDPOINT_HTTPS_NAME={{ traefik.endpoint.https.name }}
+          TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
+          TRAEFIK_LETS_ENCRYPT_RESOLVER={{ (mode == "production") | ternary("http_resolver", "http_resolver_staging") }}
+      when: not env_file.stat.exists
+  when: mode != "localhost"
+
+- block:
+    - name: create vaultwarden env file {{ mode }}
+      ansible.builtin.blockinfile:
+        path: '{{ vaultwarden.app_directory }}/.env'
+        create: true
+        marker: '# {mark} Ansible set environment'
+        block: |
+          DOMAIN_NAME = {{ domain_name }}
+          SUB_DOMAIN_NAME = {{ vaultwarden.sub_domain_name }}
+
+      when: not env_file.stat.exists
+  when: mode == "localhost"

@@ -1,0 +1,24 @@
+---
+- name: check if passbolt directory exists
+  ansible.builtin.stat:
+    path: '{{ passbolt.app_directory }}'
+  register: passbolt_directory
+
+- name: remove passbolt folder and env file if exists
+  block:
+    - name: stop passbolt stack
+      community.docker.docker_compose_v2:
+        project_src: '{{ passbolt.app_directory }}'
+        state: absent
+      ignore_errors: true
+
+    - name: remove directory
+      ansible.builtin.file:
+        path: '{{ passbolt.app_directory }}'
+        state: absent
+  when: passbolt_directory.stat.exists and (passbolt.from_scratch == true or from_scratch == true)
+
+- name: create app directory
+  ansible.builtin.file:
+    path: '{{ passbolt.app_directory }}'
+    state: directory

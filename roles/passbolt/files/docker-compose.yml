@@ -1,0 +1,62 @@
+services:
+  db:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 'true'
+      MYSQL_DATABASE: 'passbolt'
+      MYSQL_USER: 'passbolt'
+      MYSQL_PASSWORD: 'P4ssb0lt'
+    volumes:
+      - database_volume:/var/lib/mysql
+
+  passbolt:
+    image: passbolt/passbolt:latest-ce
+    #Alternatively you can use rootless:
+    #image: passbolt/passbolt:latest-ce-non-root
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      APP_FULL_BASE_URL: ${PASSBOLT_URL}
+      DATASOURCES_DEFAULT_HOST: 'db'
+      DATASOURCES_DEFAULT_USERNAME: 'passbolt'
+      DATASOURCES_DEFAULT_PASSWORD: 'P4ssb0lt'
+      DATASOURCES_DEFAULT_DATABASE: 'passbolt'
+    volumes:
+      - gpg_volume:/etc/passbolt/gpg
+      - jwt_volume:/etc/passbolt/jwt
+    command:
+      [
+        '/usr/bin/wait-for.sh',
+        '-t',
+        '0',
+        'db:3306',
+        '--',
+        '/docker-entrypoint.sh',
+      ]
+    ports:
+      - 5580:80
+      - 55443:443
+    #Alternatively for non-root images:
+    # - 80:8080
+    # - 443:4433
+    labels:
+      traefik.enable: true
+      traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}
+      traefik.http.routers.passbolt.entrypoints: ${TRAEFIK_ENDPOINT_HTTP_NAME}
+      traefik.http.routers.passbolt.rule: Host(`${PASSBOLT_URL}`)
+      traefik.http.routers.passbolt_secure.rule: Host(`${PASSBOLT_URL}`)
+      traefik.http.routers.passbolt_secure.entrypoints: ${TRAEFIK_ENDPOINT_HTTPS_NAME}
+      traefik.http.routers.passbolt_secure.tls.certresolver: ${TRAEFIK_LETS_ENCRYPT_RESOLVER:-http_resolver_staging}
+      traefik.http.services.passbolt.loadbalancer.server.port: 80
+
+volumes:
+  database_volume:
+  gpg_volume:
+  jwt_volume:
+
+networks:
+  traefik:
+    name: ${TRAEFIK_NETWORK_NAME}
+    external: true
