@@ -34,6 +34,8 @@ services:
       ACCESS_TOKEN_TTL: 15m
       CORS_ENABLED: true
       CORS_ORIGIN: true
+
+      TUS_ENABLED: true
     labels:
       traefik.enable: true
       traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}

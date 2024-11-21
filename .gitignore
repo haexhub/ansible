@@ -1,4 +1,4 @@
-secrets.yml
+*.secrets.yml
 .vscode
 .venv
 *.log

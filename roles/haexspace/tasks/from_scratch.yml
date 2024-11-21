@@ -17,8 +17,7 @@
         path: '{{ haexspace.app_directory }}'
         state: absent
   when: haexspace_directory.stat.exists and (haexspace.from_scratch == true or from_scratch == true)
-
-- name: create app directory
-  ansible.builtin.file:
-    path: '{{ haexspace.app_directory }}'
-    state: directory
+#- name: create app directory
+#  ansible.builtin.file:
+#    path: '{{ haexspace.app_directory }}'
+#    state: directory

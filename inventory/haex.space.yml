@@ -83,3 +83,16 @@ haex_space:
       from_scratch: true
       app_directory: '{{ app_directory }}/haexspace'
       sub_domain_name: haexspace
+
+    passbolt:
+      from_scratch: false
+      app_directory: '{{ app_directory }}/passbolt'
+      sub_domain_name: passbolt
+
+    vaultwarden:
+      from_scratch: true
+      app_directory: '{{ app_directory }}/vaultwarden'
+      sub_domain_name: vaultwarden
+      image:
+        version: latest
+      port: 4280

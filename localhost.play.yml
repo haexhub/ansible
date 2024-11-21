@@ -10,9 +10,9 @@
     from_scratch: false
 
   roles:
-    - vim_debian
+    #- vim_debian
     #- postgres
-    #- portainer
+    - portainer
     #- directus
 
   tasks:

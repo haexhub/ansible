@@ -1,30 +1,8 @@
 ---
-- name: remove vaultwarden folder if exists
-  ansible.builtin.file:
-    src: /usr/share/docker/vaultwarden
-    state: absent
-  when: vaultwarden.from_scratch == true
-
-- name: create vaultwarden env file
-  ansible.builtin.blockinfile:
-    path: /usr/share/docker/vaultwarden/.env
-    create: yes
-    marker: "#{mark} Ansible set environment"
-    block: |
-      DOMAIN_NAME={{ domain_name }}
-      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
-      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
-      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
-      VAULTWARDEN_PORT={{ vaultwarden.port }}
-      VAULTWARDEN_ADMIN_TOKEN={{ secrets.vaultwarden.admin_token }}
-      VAULTWARDEN_IMAGE_VERSION={{ vaultwarden.image.version }}
-
-- name: place vaultwarden docker-compose file in the right directory
-  copy:
-    src: roles/vaultwarden/files/
-    dest: /usr/share/docker/vaultwarden/
-
-- name: start vaultwarden container
-  community.docker.docker_compose_v2:
-    project_src: /usr/share/docker/vaultwarden
-    state: present
+- name: prepare vaultwarden for {{ mode }}
+  ansible.builtin.include_tasks: '{{ item }}'
+  loop:
+    - from_scratch.yml
+    - copy_files.yml
+    - create_env_file.yml
+    - start_container.yml

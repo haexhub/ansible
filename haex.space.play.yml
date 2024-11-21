@@ -16,4 +16,6 @@
     #- portainer
     #- postgres
     #- directus
-    - haexspace
+    - passbolt
+    - vaultwarden
+    #- haexspace

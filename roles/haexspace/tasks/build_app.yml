@@ -2,8 +2,7 @@
   community.general.pnpm:
     production: true
     path: '{{ haexspace.app_directory }}'
-    state: latest
-
+    #state: latest
 - name: build haexspace
   ansible.builtin.command:
     cmd: pnpm generate
