@@ -8,7 +8,7 @@ local:
     app_directory: '~/apps'
 
     portainer:
-      from_scratch: false
+      from_scratch: true
 
       app_directory: '{{ vars.app_directory }}/portainer'
       sub_domain_name: portainer
