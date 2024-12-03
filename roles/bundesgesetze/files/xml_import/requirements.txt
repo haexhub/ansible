@@ -6,4 +6,4 @@ lxml==5.2.1
 psycopg2-binary==2.9.9
 requests==2.31.0
 soupsieve==2.5
-urllib3==2.2.1
+urllib3==2.2.2
