@@ -1,0 +1,4 @@
+- name: copy gitea files
+  ansible.builtin.copy:
+    src: roles/gitea/files/docker-compose.yml
+    dest: "{{ gitea.app_directory }}/docker-compose.yml"

@@ -5,14 +5,14 @@ haex_space:
   vars:
     mode: development # development or production
     domain_name: haex.space
-    app_directory: '~/apps'
+    app_directory: "~/apps"
 
     traefik:
       from_scratch: false
       container_name: traefik
       hostname: traefik
       sub_domain_name: traefik
-      app_directory: '{{ app_directory }}/traefik'
+      app_directory: "{{ app_directory }}/traefik"
       endpoint:
         http:
           name: web
@@ -54,45 +54,60 @@ haex_space:
 
     portainer:
       from_scratch: false
-      app_directory: '{{ vars.app_directory }}/portainer'
+      app_directory: "{{ app_directory }}/portainer"
       sub_domain_name: portainer
 
     postgres:
       from_scratch: false
-      app_directory: '{{ app_directory }}/postgres'
+      app_directory: "{{ app_directory }}/postgres"
+      image: postgres
+      image_tag: alpine
 
     directus:
       from_scratch: false
 
-      app_directory: '{{ app_directory }}/directus'
+      app_directory: "{{ app_directory }}/directus"
       sub_domain_name: directus
-      protocol: 'http'
+      protocol: "http"
 
       directus_port: 8055
 
-      db_client: 'pg'
-      db_database: 'postgres'
-      db_host: 'postgres'
+      db_client: "pg"
+      db_database: "postgres"
+      db_host: "postgres"
       db_port: 5432
-      db_user: 'postgres'
+      db_user: "postgres"
 
     nodejs:
       version: 20
 
     haexspace:
       from_scratch: true
-      app_directory: '{{ app_directory }}/haexspace'
+      app_directory: "{{ app_directory }}/haexspace"
       sub_domain_name: haexspace
 
     passbolt:
       from_scratch: false
-      app_directory: '{{ app_directory }}/passbolt'
+      app_directory: "{{ app_directory }}/passbolt"
       sub_domain_name: passbolt
 
     vaultwarden:
       from_scratch: true
-      app_directory: '{{ app_directory }}/vaultwarden'
+      app_directory: "{{ app_directory }}/vaultwarden"
       sub_domain_name: vaultwarden
       image:
         version: latest
       port: 4280
+
+    gitlab:
+      app_directory: "{{ app_directory }}/gitlab"
+      sub_domain_name: gitlab
+      image_version: latest
+      image: gitlab/gitlab-ce
+
+    gitea:
+      from_scratch: true
+      app_directory: "{{ app_directory }}/gitea"
+      sub_domain_name: git
+      image_tag: latest-rootless
+      image: docker.gitea.com/gitea

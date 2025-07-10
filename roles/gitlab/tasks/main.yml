@@ -1,42 +1,40 @@
 ---
 - name: create gitlab env file
   ansible.builtin.blockinfile:
-    path: /usr/share/docker/gitlab/.env
+    path: "{{ gitlab.app_directory }}/.env"
     create: yes
-    marker: '#{mark} Ansible set environment'
+    marker: "#{mark} Ansible set environment"
     block: |
       DOMAIN_NAME={{ domain_name }}
-      TRAEFIK_HTTP_ENDPOINT={{ traefik.http_endpoint }}
-      TRAEFIK_HTTPS_ENDPOINT={{ traefik.https_endpoint }}
+      SUB_DOMAIN_NAME={{ gitlab.sub_domain_name }}
+      TRAEFIK_ENDPOINT_HTTP_NAME={{ traefik.endpoint.http.name }}
+      TRAEFIK_ENDPOINT_HTTPS_NAME={{ traefik.endpoint.https.name }}
       TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
-      COMPOSE_PROJECT_NAME=gitlab
-      
+      TRAEFIK_LETS_ENCRYPT_RESOLVER={{ (mode == "production") | ternary("http_resolver", "http_resolver_staging") }}
 
 - name: create root password file
   ansible.builtin.blockinfile:
-    path: /usr/share/docker/gitlab/root_password.txt
+    path: "{{ gitlab.app_directory }}/root_password.txt"
     create: yes
-    marker: '# {mark} Ansible set root password'
+    marker: "# {mark} Ansible set root password"
     block: |
       {{ secrets.gitlab.root_password }}
 
 - name: create gitlab.rb file
   ansible.builtin.blockinfile:
-    path: /usr/share/docker/gitlab/gitlab.rb
+    path: "{{ gitlab.app_directory }}/gitlab.rb"
     create: yes
-    marker: '# {mark} Ansible '
+    marker: "# {mark} Ansible "
     block: |
-      external_url 'https://gitlab.{{ hostname }}'
+      external_url 'https://{{ gitlab.sub_domain_name }}.{{ domain_name }}'
       gitlab_rails['initial_root_password'] = File.read('/run/secrets/gitlab_root_password').gsub("#.*\n$", "").gsub("\n", "")
 
 - name: place gitlab files in the right directory
   copy:
     src: roles/gitlab/files/
-    dest: /usr/share/docker/gitlab/
-    
+    dest: "{{ gitlab.app_directory }}"
+
 - name: start gitlab container
-  community.docker.docker_compose:
-    project_src: /usr/share/docker/gitlab
+  community.docker.docker_compose_v2:
+    project_src: "{{ gitlab.app_directory }}"
     state: present
-    build: yes
-    nocache: yes

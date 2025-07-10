@@ -5,7 +5,7 @@
     - secrets.yml
   vars:
     domain_name: haex.space
-    mode: development # development or production or localhost
+    mode: production # development or production or localhost
     from_scratch: true
 
   roles:
@@ -15,7 +15,7 @@
     #- traefik
     #- portainer
     #- postgres
+    - gitea
+    #- postgres
     #- directus
-    - passbolt
-    - vaultwarden
     #- haexspace

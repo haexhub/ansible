@@ -1,8 +1,6 @@
-version: '3'
-
 services:
   gitlab:
-    domain_name: gitlab.haex.space
+    hostname: ${SUB_DOMAIN_NAME}.${DOMAIN_NAME}
     image: gitlab/gitlab-ce:latest
     restart: unless-stopped
     volumes:
@@ -17,7 +15,7 @@ services:
       - web
     shm_size: 256m
     secrets:
-      - gitlab_root_password      
+      - gitlab_root_password
     configs:
       - source: gitlab
         target: /omnibus_config.rb
@@ -28,14 +26,15 @@ services:
       #external_url 'https://gitlab.{{ hostname }}'
       #  gitlab_rails['initial_root_password'] = File.read('/run/secrets/gitlab_root_password').gsub("#.*\n$", "").gsub("\n", "")
 
-    labels: 
-      - traefik.enable=true
-      - traefik.http.routers.gitlab.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
-      - traefik.http.routers.gitlab.rule=Host(`gitlab.${DOMAIN_NAME}`)
-      - traefik.http.routers.gitlab_secure.rule=Host(`gitlab.${DOMAIN_NAME}`)
-      - traefik.http.routers.gitlab_secure.entrypoints=${TRAEFIK_HTTPS_ENDPOINT}
-      - traefik.http.routers.gitlab_secure.tls.certresolver=le_staging
-      - traefik.http.services.gitlab.loadbalancer.server.port=443
+    labels:
+      traefik.enable: true
+      traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}
+      traefik.http.routers.gitlab.entrypoints: ${TRAEFIK_ENDPOINT_HTTP_NAME:-web}
+      traefik.http.routers.gitlab.rule: Host(`${SUB_DOMAIN_NAME}.${DOMAIN_NAME}`)
+      traefik.http.routers.gitlab_secure.rule: Host(`${SUB_DOMAIN_NAME}.${DOMAIN_NAME}`)
+      traefik.http.routers.gitlab_secure.entrypoints: ${TRAEFIK_ENDPOINT_HTTPS_NAME:-web_secure}
+      traefik.http.routers.gitlab_secure.tls.certresolver: ${TRAEFIK_LETS_ENCRYPT_RESOLVER:-http_resolver_staging}
+      traefik.http.services.gitlab_secure.loadbalancer.server.port: 443
 
 volumes:
   GITLAB_CONFIG:

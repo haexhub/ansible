@@ -1,0 +1,76 @@
+services:
+  gitea:
+    restart: unless-stopped
+    image: ${GITEA_IMAGE}:${GITEA_IMAGE_TAG}
+    container_name: gitea
+    depends_on:
+      gitea-db-setup:
+        condition: service_completed_successfully
+    environment:
+      GITEA__database__DB_TYPE: ${GITEA_DB_TYPE}
+      GITEA__database__HOST: ${GITEA_DB_HOST}
+      GITEA__database__NAME: ${GITEA_DB_NAME}
+      GITEA__database__USER: ${GITEA_DB_USER}
+      GITEA__database__PASSWD: ${GITEA_DB_PASSWD}
+    volumes:
+      - giteaData:/var/lib/gitea
+      - giteaConfig:/etc/gitea
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - traefik
+      - postgres
+    ports:
+      - "127.0.0.1:3333:3000"
+      - "127.0.0.1:2222:2222"
+    labels:
+      traefik.enable: true
+      traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}
+      traefik.http.routers.gitea.entrypoints: ${TRAEFIK_ENDPOINT_HTTP_NAME:-web}
+      traefik.http.routers.gitea.rule: Host(`${SUB_DOMAIN_NAME}.${DOMAIN_NAME}`)
+      traefik.http.routers.gitea_secure.rule: Host(`${SUB_DOMAIN_NAME}.${DOMAIN_NAME}`)
+      traefik.http.routers.gitea_secure.entrypoints: ${TRAEFIK_ENDPOINT_HTTPS_NAME:-web_secure}
+      traefik.http.routers.gitea_secure.tls.certresolver: ${TRAEFIK_LETS_ENCRYPT_RESOLVER:-http_resolver_staging}
+      traefik.http.services.gitea.loadbalancer.server.port: 3000
+
+  gitea-db-setup:
+    image: ${POSTGRES_IMAGE:-postgres}:${POSTGRES_IMAGE_TAG:-latest} # Nutzt das gleiche Postgres-Image
+    networks:
+      - postgres
+    environment:
+      # Die Zugangsdaten zum Admin-Benutzer deiner zentralen Postgres-Instanz
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      GITEA_DB_NAME: ${GITEA_DB_NAME}
+      GITEA_DB_USER: ${GITEA_DB_USER}
+      GITEA_DB_PASSWD: ${GITEA_DB_PASSWD}
+
+    command: >
+      bash -c "
+        # Warte, bis Postgres erreichbar ist
+        until pg_isready -h postgres -p 5432; do
+          echo 'Warte auf Postgres...'
+          sleep 2
+        done
+
+        # Führe SQL aus, um DB und User zu erstellen (nur wenn sie nicht existieren)
+        psql -h postgres -p 5432 -U postgres -d postgres -c \"SELECT 1 FROM pg_database WHERE datname = '$GITEA_DB_NAME'\" | grep -q 1 || \
+        psql -h postgres -p 5432 -U postgres -d postgres -c \"CREATE DATABASE $GITEA_DB_NAME\"
+
+        psql -h postgres -p 5432 -U postgres -d postgres -c \"SELECT 1 FROM pg_roles WHERE rolname = '$GITEA_DB_USER'\" | grep -q 1 || \
+        psql -h postgres -p 5432 -U postgres -d postgres -c \"CREATE USER $GITEA_DB_USER WITH PASSWORD '$GITEA_DB_PASSWD'\"
+
+        psql -h postgres -p 5432 -U postgres -d postgres -c \"GRANT ALL PRIVILEGES ON DATABASE $GITEA_DB_NAME TO $GITEA_DB_USER\"
+      "
+
+volumes:
+  giteaData:
+    name: giteaData
+  giteaConfig:
+    name: giteaConfig
+
+networks:
+  traefik:
+    name: ${TRAEFIK_NETWORK_NAME:-proxy}
+    external: true
+  postgres:
+    external: true

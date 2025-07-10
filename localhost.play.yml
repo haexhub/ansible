@@ -10,7 +10,7 @@
     from_scratch: false
 
   roles:
-    #- vim_debian
+    - vim_debian
     #- postgres
     - portainer
     #- directus
@@ -19,10 +19,10 @@
     - name: show vars
       ansible.builtin.debug:
         msg:
-          - 'set vars: {{ vars.postgres }}'
+          - "set vars: {{ vars.postgres }}"
     - name: debug
-      ansible.builtin.shell: 'id -u ${whoami}'
-      register: 'output'
+      ansible.builtin.shell: "id -u ${whoami}"
+      register: "output"
 
     - debug:
-        msg: '{{ output.stdout_lines }}'
+        msg: "{{ output.stdout_lines }}"

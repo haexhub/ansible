@@ -1,14 +1,14 @@
 ---
 - name: check if postgres directory exists
   ansible.builtin.stat:
-    path: '{{ postgres.app_directory }}'
+    path: "{{ postgres.app_directory }}"
   register: postgres_directory
 
 - name: stop and remove postgres container
   block:
     - name: stop postgres container
       community.docker.docker_compose_v2:
-        project_src: '{{ postgres.app_directory }}'
+        project_src: "{{ postgres.app_directory }}"
         state: absent
       ignore_errors: true
 
@@ -20,7 +20,7 @@
 
     - name: remove directory
       ansible.builtin.file:
-        path: '{{ postgres.app_directory }}'
+        path: "{{ postgres.app_directory }}"
         state: absent
   when: postgres_directory.stat.exists and (postgres.from_scratch == true or from_scratch == true)
 

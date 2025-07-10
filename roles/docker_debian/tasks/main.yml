@@ -1,4 +1,8 @@
 - block:
+    - name: Get DEB architecture
+      shell: dpkg --print-architecture
+      register: deb_architecture
+
     - name: install requirements
       ansible.builtin.apt:
         update_cache: true
@@ -9,13 +13,26 @@
           - python3-full
           - virtualenv
 
+    - name: remove old versions of docker
+      ansible.builtin.apt:
+        name:
+          - docker
+          - docker-engine
+          - docker.io
+          - containerd
+          - runc
+          - docker-doc
+          - docker-compose
+          - podman-docker
+        state: absent
+
     - name: add key for docker
       ansible.builtin.apt_key:
         url: https://download.docker.com/linux/debian/gpg
 
     - name: add repository for docker
       ansible.builtin.apt_repository:
-        repo: 'deb [arch=amd64] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable'
+        repo: "deb [arch={{ deb_architecture.stdout }}] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
         state: present
 
     - name: install docker-ce and docker compose
@@ -34,7 +51,7 @@
 
     - name: add docker group to user
       ansible.builtin.user:
-        name: '{{ ansible_user_id }}'
+        name: "{{ ansible_user_id }}"
         groups: docker
         append: true
 

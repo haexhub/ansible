@@ -1,21 +1,30 @@
 - name: Check if .env file exists
   ansible.builtin.stat:
-    path: "{{ postgres.app_directory }}/.env"
+    path: "{{ gitea.app_directory }}/.env"
   register: env_file
 
-- name: create portainer env file
+- name: create gitea env file
   ansible.builtin.blockinfile:
-    path: "{{ postgres.app_directory }}/.env"
+    path: "{{ gitea.app_directory }}/.env"
     create: true
     marker: "# {mark} Ansible set environment"
     block: |
-      DOMAIN_NAME = {{ domain_name }}
-      PGADMIN_ADMIN_EMAIL = {{ secrets.postgres.pgadmin.admin.email }}
-      PGADMIN_ADMIN_PASSWORD = {{ secrets.postgres.pgadmin.admin.password }}
+      DOMAIN_NAME={{ domain_name }}
+      SUB_DOMAIN_NAME={{ gitea.sub_domain_name }}
+
+      GITEA_IMAGE={{ gitea.image }}
+      GITEA_IMAGE_TAG={{ gitea.image_tag }}
+
+      # gitea with postgres
       POSTGRES_PASSWORD = {{ secrets.postgres.admin.password }}
-      POSTGRES_USER = {{ secrets.postgres.admin.user }}
       POSTGRES_IMAGE = {{ postgres.image }}
       POSTGRES_IMAGE_TAG = {{ postgres.image_tag }}
+
+      GITEA_DB_TYPE=postgres
+      GITEA_DB_HOST=postgres:5432
+      GITEA_DB_NAME=gitea
+      GITEA_DB_USER={{ secrets.postgres.admin.user  }}
+      GITEA_DB_PASSWD={{ secrets.postgres.admin.password  }}
 
       TRAEFIK_ENDPOINT_HTTP_NAME={{ traefik.endpoint.http.name }}
       TRAEFIK_ENDPOINT_HTTPS_NAME={{ traefik.endpoint.https.name }}
