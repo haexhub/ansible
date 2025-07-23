@@ -1,0 +1,119 @@
+---
+# Specific XRDP instructions
+
+- name: XRDP | 1.0 | Ensure the XRDP client is installed
+  ansible.builtin.apt:
+    name: xrdp
+    state: present
+
+- name: XRDP | 2.0 | Ensure XRDP is started and enabled
+  ansible.builtin.systemd:
+    name: xrdp
+    state: started
+    enabled: true
+
+- name: XRDP | 3.0 | Ensure Screen Lock is disabled on Gnome
+  ansible.builtin.command: gsettings set org.gnome.desktop.lockdown disable-lock-screen 'true'
+  changed_when: false
+  when: xrdp.environment == "gnome" and xrdp.disable_screen_lock
+
+- name: XRDP | 4.0 | Ensure that port is set as configured
+  ansible.builtin.lineinfile:
+    state: present
+    dest: /etc/xrdp/xrdp.ini
+    regexp: "^(;|#)?port"
+    line: "port={{ xrdp.port }}"
+
+- name: XRDP | 5.0 | Ensure that enhanced RDP security is used
+  ansible.builtin.lineinfile:
+    state: present
+    dest: /etc/xrdp/xrdp.ini
+    regexp: "^(;|#)?security_layer"
+    line: "security_layer=tls"
+  when: xrdp.tls_enabled
+
+- name: XRDP | 6.0 | Ensure that crypt_level is set to 'high'
+  ansible.builtin.lineinfile:
+    state: present
+    dest: /etc/xrdp/xrdp.ini
+    regexp: "^(;|#)?crypt_level"
+    line: "crypt_level=high"
+
+- name: XRDP | 7.0 | Ensure that ssl_protocols is set to TLS 1.2 or better
+  ansible.builtin.lineinfile:
+    state: present
+    dest: /etc/xrdp/xrdp.ini
+    regexp: "^(;|#)?ssl_protocols"
+    line: "ssl_protocols=TLSv1.2, TLSv1.3"
+
+- name: XRDP | 7.1 | Set ssl certificate
+  ansible.builtin.lineinfile:
+    state: present
+    dest: /etc/xrdp/xrdp.ini
+    regexp: "^(;|#)?certificate"
+    line: "certificate=/etc/xrdp/cert.pem"
+
+- name: XRDP | 7.2 | Set ssl key_file
+  ansible.builtin.lineinfile:
+    state: present
+    dest: /etc/xrdp/xrdp.ini
+    regexp: "^(;|#)?key_file"
+    line: "key_file=/etc/xrdp/key.pem"
+
+- name: XRDP | 7.3 | Set ssl tls_ciphers
+  ansible.builtin.lineinfile:
+    state: present
+    dest: /etc/xrdp/xrdp.ini
+    regexp: "^(;|#)?tls_ciphers"
+    line: "tls_ciphers=HIGH"
+
+- name: XRDP | 8.0 | Ensure XRDP Logging is enabled and set to INFO
+  ansible.builtin.lineinfile:
+    state: present
+    dest: /etc/xrdp/xrdp.ini
+    regexp: "^(;|#)?{{ item.key }}"
+    line: "{{ item.line }}"
+  loop:
+    - { key: "LogLevel", line: "LogLevel=INFO" }
+    - { key: "SyslogLevel", line: "LogLevel=INFO" }
+
+- name: XRDP | 9.0 | Patch Polkit
+  block:
+    - name: XRDP | 9.1 | Gather PolKit version for patch params
+      ansible.builtin.shell:
+        cmd: set -o pipefail && pkaction --version | rev | cut -d' ' -f1 | rev
+        executable: /bin/bash
+      changed_when: false
+      register: pk_version
+      when: xrdp.colord_bypass
+
+    - name: XRDP | 9.2 | Ensure that colord patch is applied to the system - 'PolKit v0.106-'
+      ansible.builtin.template:
+        src: 45-allow-colord.j2
+        dest: /etc/polkit-1/localauthority/50-local.d/45-allow-colord.pkla
+        group: root
+        owner: root
+        mode: "0751"
+      when: xrdp.colord_bypass and pk_version.stdout is version('0.106', '<')
+
+    - name: XRDP | 9.2 | Ensure that colord patch is applied to the system - 'PolKit v0.106+'
+      ansible.builtin.template:
+        src: 45-allow-colord.j2
+        dest: /etc/polkit-1/localauthority/50-local.d/45-allow-colord.conf
+        group: root
+        owner: root
+        mode: "0751"
+
+      when: xrdp.colord_bypass and pk_version.stdout is version('0.106', '>=') and false
+
+- name: XRDP | 11.0 | Ensure XRDP user is added to the ssl-certs group
+  ansible.builtin.user:
+    name: xrdp
+    groups: ssl-cert
+    shell: /sbin/nologin
+    append: true
+
+- name: XRDP | 12.0 | Ensure XRDP configuration is applied by restarting the service
+  ansible.builtin.systemd:
+    name: xrdp
+    state: restarted

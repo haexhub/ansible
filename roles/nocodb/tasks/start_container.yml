@@ -1,0 +1,4 @@
+- name: start nocodb container
+  community.docker.docker_compose_v2:
+    project_src: "{{ nocodb.app_directory }}"
+    state: present

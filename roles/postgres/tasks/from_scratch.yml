@@ -10,6 +10,7 @@
       community.docker.docker_compose_v2:
         project_src: "{{ postgres.app_directory }}"
         state: absent
+        remove_volumes: true
       ignore_errors: true
 
     - name: remove postgres network

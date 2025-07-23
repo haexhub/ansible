@@ -1,10 +1,10 @@
-haex_space:
+haex_cloud:
   hosts:
-    haex.space:
+    haex.cloud:
 
   vars:
     mode: development # development or production
-    domain_name: haex.space
+    domain_name: haex.cloud
     app_directory: "~/apps"
 
     traefik:
@@ -32,6 +32,20 @@ haex_space:
           tls_resolver: /tls_letsencrypt.json # absolute path needed
       network_name: proxy
 
+    crowdsec:
+      container_name: crowdsec
+      hostname: crowdsec
+      image_version: latest
+      image: crowdsecurity/crowdsec
+      networks_crowdsec_ipv4: 172.31.254.254
+
+    traefik_crowdsec_bouncer:
+      container_name: traefik_crowdsec_bouncer
+      hostname: traefik-crowdsec-bouncer
+      image: fbonalair/traefik-crowdsec-bouncer
+      image_version: latest
+      networks_crowdsec_ipv4: 172.31.254.252
+
     networks:
       proxy_name: proxy
       proxy_subnet_ipv4: 172.30.0.0/16
@@ -49,10 +63,47 @@ haex_space:
       image: postgres
       image_tag: alpine
 
+    directus:
+      from_scratch: false
+
+      app_directory: "{{ app_directory }}/directus"
+      sub_domain_name: directus
+      protocol: "http"
+
+      directus_port: 8055
+
+      db_client: "pg"
+      db_database: "postgres"
+      db_host: "postgres"
+      db_port: 5432
+      db_user: "postgres"
+
+    nodejs:
+      version: 20
+
     haexspace:
       from_scratch: true
       app_directory: "{{ app_directory }}/haexspace"
       sub_domain_name: haexspace
+
+    passbolt:
+      from_scratch: false
+      app_directory: "{{ app_directory }}/passbolt"
+      sub_domain_name: passbolt
+
+    vaultwarden:
+      from_scratch: true
+      app_directory: "{{ app_directory }}/vaultwarden"
+      sub_domain_name: vaultwarden
+      image:
+        version: latest
+      port: 4280
+
+    gitlab:
+      app_directory: "{{ app_directory }}/gitlab"
+      sub_domain_name: gitlab
+      image_version: latest
+      image: gitlab/gitlab-ce
 
     gitea:
       from_scratch: true

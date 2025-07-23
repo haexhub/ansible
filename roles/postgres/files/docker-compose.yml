@@ -14,6 +14,7 @@ services:
     #  - 8021:80
     networks:
       - postgres
+      - traefik
     depends_on:
       - postgres
     #volumes:
@@ -51,4 +52,8 @@ services:
 networks:
   postgres:
     name: postgres
+    external: true
+
+  traefik:
+    name: ${TRAEFIK_NETWORK_NAME:-proxy}
     external: true

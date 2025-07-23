@@ -1,0 +1,7 @@
+---
+# Entrypoint for tasks
+- block:
+    - name: ENTRYPOINT | Include Debian tasks
+      ansible.builtin.include_tasks: "debian.yml"
+      when: ansible_facts['distribution'] == 'Debian'
+  become: true

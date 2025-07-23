@@ -1,0 +1,68 @@
+volumes:
+  db_storage:
+  n8n_storage:
+
+networks:
+  traefik:
+    name: ${TRAEFIK_NETWORK_NAME:-proxy}
+    external: true
+  n8n:
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_NON_ROOT_USER=${POSTGRES_NON_ROOT_USER}
+      - POSTGRES_NON_ROOT_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
+    volumes:
+      - db_storage:/var/lib/postgresql/data
+      #- ./init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - n8n
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    restart: unless-stopped
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
+      - DB_POSTGRESDB_USER=${POSTGRES_USER}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_RUNNERS_ENABLED=true
+    ports:
+      - 5678:5678
+    links:
+      - postgres
+    volumes:
+      - n8n_storage:/home/node/.n8n
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - traefik
+      - n8n
+    labels:
+      traefik.enable: true
+      traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}
+      traefik.http.routers.n8n.entrypoints: ${TRAEFIK_ENDPOINT_HTTP_NAME:-web}
+      traefik.http.routers.n8n.rule: Host(`${SUB_DOMAIN_NAME}.${DOMAIN_NAME}`)
+      traefik.http.routers.n8n_secure.rule: Host(`${SUB_DOMAIN_NAME}.${DOMAIN_NAME}`)
+      traefik.http.routers.n8n_secure.entrypoints: ${TRAEFIK_ENDPOINT_HTTPS_NAME:-web_secure}
+      traefik.http.routers.n8n_secure.tls.certresolver: ${TRAEFIK_LETS_ENCRYPT_RESOLVER:-http_resolver_staging}
+      traefik.http.services.n8n.loadbalancer.server.port: 5678

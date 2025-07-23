@@ -1,12 +1,12 @@
 ---
-- name: prepare postgres for {{ mode }}
+- name: prepare nocodb for {{ mode }}
   ansible.builtin.include_tasks: "{{ item }}"
   loop:
     - from_scratch.yml
     - copy_files.yml
     - create_env_file.yml
     - start_container.yml
-#- name: prepare postgres for {{ mode }}
+#- name: prepare nocodb for {{ mode }}
 #  ansible.builtin.include_tasks: '{{ item }}'
 #  loop:
 #    - from_scratch.yml

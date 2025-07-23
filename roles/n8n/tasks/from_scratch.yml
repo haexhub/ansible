@@ -1,0 +1,26 @@
+---
+- name: check if n8n directory exists
+  ansible.builtin.stat:
+    path: "{{ n8n.app_directory }}"
+  register: n8n_directory
+
+- name: stop and remove n8n container
+  block:
+    - name: stop n8n container
+      community.docker.docker_compose_v2:
+        project_src: "{{ n8n.app_directory }}"
+        state: absent
+        remove_volumes: true
+
+      ignore_errors: true
+
+    - name: remove n8n directory
+      ansible.builtin.file:
+        path: "{{ n8n.app_directory }}"
+        state: absent
+  when: n8n_directory.stat.exists and (n8n.from_scratch == true or from_scratch == true)
+
+- name: create app directory
+  ansible.builtin.file:
+    path: "{{ n8n.app_directory }}"
+    state: directory

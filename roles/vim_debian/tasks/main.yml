@@ -1,18 +1,18 @@
 ---
 - block:
-    - name: install vim
-      apt:
+    - name: Install vim
+      ansible.builtin.apt:
         name: vim
         state: latest
 
-    - name: touch vimrc
-      file:
+    - name: Touch vimrc
+      ansible.builtin.file:
         path: /etc/vim/vimrc
-        mode: '0644'
+        mode: "0644"
         state: touch
 
-    - name: set vimrc config
-      blockinfile:
+    - name: Set vimrc config
+      ansible.builtin.blockinfile:
         path: /etc/vim/vimrc
         marker: '"{mark} ansible vim config'
         block: |

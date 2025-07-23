@@ -1,0 +1,6 @@
+nocodb:
+  from_scratch: true
+  app_directory: "{{ app_directory }}/nocodb"
+  sub_domain_name: nocodb
+  image_tag: latest
+  image: nocodb/nocodb

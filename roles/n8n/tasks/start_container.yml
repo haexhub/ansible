@@ -1,0 +1,4 @@
+- name: start n8n container
+  community.docker.docker_compose_v2:
+    project_src: "{{ n8n.app_directory }}"
+    state: present

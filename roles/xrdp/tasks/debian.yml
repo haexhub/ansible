@@ -1,0 +1,36 @@
+---
+- name: Debian | 0 | Ensure Apt Cache is up-to-date
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Debian | 1.0 | Make sure all packages sources are up-to-date
+  ansible.builtin.apt:
+    name: "*"
+    state: latest
+
+- name: Debian | 2.0 | Install the gnome desktop environment
+  ansible.builtin.apt:
+    name: "gnome"
+    state: present
+  when: xrdp.environment == "gnome"
+
+- name: Debian | 3.0 | Install the XFCE debian desktop environment
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - xfce4
+    - xfce4-goodies
+    - xorg
+    - dbus-x11
+    - x11-xserver-utils
+  when: xrdp.environment == "xfce"
+
+- name: Debian | 4.0 | Initiate configuration of XRDP server
+  ansible.builtin.import_tasks: "xrdp.yml"
+  #notify: Restart XRDP
+
+- name: Debian | 4.0 | Include firewall config
+  ansible.builtin.include_tasks: "firewall.yml"
+  when: xrdp.firewall.enabled

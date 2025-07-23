@@ -1,20 +1,17 @@
-version: '3.7'
-
-services: 
+services:
   cos:
     restart: unless-stopped
-    build: 
+    build:
       context: /usr/share/docker/cos
       dockerfile: Dockerfile
     container_name: cos
-    domain_name: cos
     #volumes:
     #  - cosData:/app
     networks:
       - ${TRAEFIK_NETWORK_NAME}
-    ports: 
+    ports:
       - 4002:4173
-    labels: 
+    labels:
       - traefik.enable=true
       - traefik.http.routers.cos.entrypoints=${TRAEFIK_HTTP_ENDPOINT}
       - traefik.http.routers.cos.rule=Host(`cos.${DOMAIN_NAME}`)
@@ -26,7 +23,7 @@ services:
 volumes:
   cosData:
 
-networks: 
- ${TRAEFIK_NETWORK_NAME}:
+networks:
+  ${TRAEFIK_NETWORK_NAME}:
     name: ${TRAEFIK_NETWORK_NAME}
     external: true

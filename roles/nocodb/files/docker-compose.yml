@@ -1,0 +1,36 @@
+networks:
+  traefik:
+    name: ${TRAEFIK_NETWORK_NAME:-proxy}
+    external: true
+
+  postgres:
+    name: postgres
+    external: true
+
+volumes:
+  nocodb-data:
+    name: nocodb-data
+
+services:
+  nocodb:
+    container_name: nocodb
+    environment:
+      - "NC_DB=pg://postgres:5432?u=${POSTGRES_USER}&p=${POSTGRES_PASSWORD}&d=${NOCODB_DB_NAME}"
+      - "NC_PUBLIC_URL=https://nocodb.${DOMAIN_NAME}"
+      - NC_DISABLE_TELE=true
+    image: "nocodb/nocodb:latest"
+    labels:
+      traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}
+      traefik.enable: true
+      traefik.http.routers.nocodb_secure.entrypoints: ${TRAEFIK_ENDPOINT_HTTPS_NAME}
+      traefik.http.routers.nocodb_secure.rule: Host(`nocodb.${DOMAIN_NAME}`)
+      traefik.http.routers.nocodb_secure.tls.certresolver: ${TRAEFIK_LETS_ENCRYPT_RESOLVER:-http_resolver_staging}
+      traefik.http.routers.nocodb.entrypoints: ${TRAEFIK_ENDPOINT_HTTP_NAME}
+      traefik.http.routers.nocodb.rule: Host(`nocodb.${DOMAIN_NAME}`)
+      traefik.http.services.nocodb.loadbalancer.server.port: 8080
+    networks:
+      - traefik
+      - postgres
+    restart: unless-stopped
+    volumes:
+      - "nocodb-data:/usr/app/data"

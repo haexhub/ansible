@@ -1,0 +1,24 @@
+- name: Check if .env file exists
+  ansible.builtin.stat:
+    path: "{{ nocodb.app_directory }}/.env"
+  register: env_file
+
+- name: create nocodb env file
+  ansible.builtin.blockinfile:
+    path: "{{ nocodb.app_directory }}/.env"
+    create: true
+    marker: "# {mark} Ansible set environment"
+    block: |
+      DOMAIN_NAME = {{ domain_name }}
+      POSTGRES_PASSWORD = {{ secrets.postgres.admin.password }}
+      POSTGRES_USER = {{ secrets.postgres.admin.user }}
+
+      NOCODB_DB_USER = {{ secrets.nocodb.user }}
+      NOCODB_DB_PASSWORD = {{ secrets.nocodb.password }}
+      NOCODB_DB_NAME = {{ secrets.nocodb.db_name }}
+
+      TRAEFIK_ENDPOINT_HTTP_NAME={{ traefik.endpoint.http.name }}
+      TRAEFIK_ENDPOINT_HTTPS_NAME={{ traefik.endpoint.https.name }}
+      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
+      TRAEFIK_LETS_ENCRYPT_RESOLVER={{ (mode == "production") | ternary("http_resolver", "http_resolver_staging") }}
+  when: not env_file.stat.exists or nocodb.from_scratch == true or from_scratch == true

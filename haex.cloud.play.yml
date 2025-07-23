@@ -1,0 +1,22 @@
+---
+- name: deploy services on haex cloud
+  hosts: haex.cloud
+  vars_files:
+    - secrets.yml
+  vars:
+    domain_name: haex.cloud
+    mode: production # development or production or localhost
+    from_scratch: true
+
+  roles:
+    - docker_debian
+    - nodejs_debian
+    - vim_debian
+    #- traefik
+    #- portainer
+    #- postgres
+    #- gitea
+    #- postgres
+    #- directus
+    #- haexspace
+    #- n8n

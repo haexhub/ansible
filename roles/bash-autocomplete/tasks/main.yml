@@ -1,0 +1,6 @@
+- block:
+    - name: install bash autocomplete
+      ansible.builtin.apt:
+        name: bash-completion
+        state: present
+  become: true

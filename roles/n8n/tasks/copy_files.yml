@@ -1,0 +1,4 @@
+- name: copy n8n files
+  ansible.builtin.copy:
+    src: roles/n8n/files/docker-compose.yml
+    dest: "{{ n8n.app_directory }}/docker-compose.yml"
