@@ -1,0 +1,38 @@
+- name: Check if .env file exists
+  ansible.builtin.stat:
+    path: "{{ windmill.app_directory }}/.env"
+  register: env_file
+
+- name: create windmill env file
+  ansible.builtin.blockinfile:
+    path: "{{ windmill.app_directory }}/.env"
+    create: true
+    marker: "# {mark} Ansible set environment"
+    block: |
+      DOMAIN_NAME = {{ domain_name }}
+      SUB_DOMAIN_NAME = {{ windmill.sub_domain_name }}
+      POSTGRES_PASSWORD = {{ secrets.postgres.admin.password }}
+      POSTGRES_USER = {{ secrets.postgres.admin.user }}
+      DATABASE_URL=postgres://{{ secrets.postgres.admin.user }}:{{ secrets.postgres.admin.password }}@postgres:5432/{{ windmill.db_name }}?sslmode=disable
+
+      WINDMILL_DB_NAME={{ windmill.db_name }}
+
+      # Windmill Image Version
+      WM_IMAGE=ghcr.io/windmill-labs/windmill:main
+
+      # Windmill Configuration
+      BASE_URL=https://{{ windmill.sub_domain_name }}.{{ domain_name }}
+      RUST_LOG=info
+
+      # Worker Configuration
+      WORKER_GROUP=default
+      KEEP_JOB_DIR=false
+
+      # Instance Identifier
+      INSTANCE_NAME=windmill
+
+      TRAEFIK_ENDPOINT_HTTP_NAME={{ traefik.endpoint.http.name }}
+      TRAEFIK_ENDPOINT_HTTPS_NAME={{ traefik.endpoint.https.name }}
+      TRAEFIK_NETWORK_NAME={{ traefik.network_name }}
+      TRAEFIK_LETS_ENCRYPT_RESOLVER={{ (mode == "production") | ternary("http_resolver", "http_resolver_staging") }}
+  when: not env_file.stat.exists or windmill.from_scratch == true or from_scratch == true

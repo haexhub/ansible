@@ -1,0 +1,5 @@
+windmill:
+  from_scratch: true
+  app_directory: windmill
+  sub_domain_name: windmill
+  db_name: windmill

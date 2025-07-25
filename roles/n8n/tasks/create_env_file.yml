@@ -14,6 +14,7 @@
 
       POSTGRES_USER={{ secrets.n8n.postgres.admin.user }}
       POSTGRES_PASSWORD={{ secrets.n8n.postgres.admin.password }}
+      N8N_DB_NAME=n8n
       POSTGRES_DB=n8n
       POSTGRES_NON_ROOT_USER={{ secrets.n8n.postgres.n8n.user }}
       POSTGRES_NON_ROOT_PASSWORD={{ secrets.n8n.postgres.n8n.password }}

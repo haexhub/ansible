@@ -1,0 +1,205 @@
+networks:
+  traefik:
+    name: ${TRAEFIK_NETWORK_NAME:-proxy}
+    external: true
+
+  postgres:
+    name: postgres
+    external: true
+
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "${LOG_MAX_SIZE:-20m}"
+    max-file: "${LOG_MAX_FILE:-10}"
+    compress: "true"
+
+services:
+  # db:
+  #   deploy:
+  #     # To use an external database, set replicas to 0 and set DATABASE_URL to the external database url in the .env file
+  #     replicas: 1
+  #   image: postgres:16
+  #   shm_size: 1g
+  #   restart: unless-stopped
+  #   volumes:
+  #     - db_data:/var/lib/postgresql/data
+  #   expose:
+  #     - 5432
+  #   ports:
+  #     - 5432:5432
+  #   environment:
+  #     POSTGRES_PASSWORD: changeme
+  #     POSTGRES_DB: windmill
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   logging: *default-logging
+  windmill-db-setup:
+    image: ${POSTGRES_IMAGE:-postgres}:${POSTGRES_IMAGE_TAG:-latest} # Nutzt das gleiche Postgres-Image
+    networks:
+      - postgres
+    environment:
+      # Die Zugangsdaten zum Admin-Benutzer deiner zentralen Postgres-Instanz
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+
+    command: >
+      bash -c "
+        # Warte, bis Postgres erreichbar ist
+        until pg_isready -h postgres -p 5432; do
+          echo 'Warte auf Postgres...'
+          sleep 2
+        done
+
+        # Führe SQL aus, um DB und User zu erstellen (nur wenn sie nicht existieren)
+        psql -h postgres -p 5432 -U postgres -d postgres -c \"CREATE DATABASE ${WINDMILL_DB_NAME};\" 
+      "
+
+  windmill_server:
+    image: ${WM_IMAGE}
+    pull_policy: always
+    deploy:
+      replicas: 1
+    restart: unless-stopped
+    expose:
+      - 8000
+      - 2525
+    networks:
+      - traefik
+      - postgres
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - BASE_URL=${BASE_URL}
+      - RUST_LOG=${RUST_LOG}
+      - MODE=server
+    volumes:
+      - worker_logs:/tmp/windmill/logs
+    logging: *default-logging
+    labels:
+      traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}
+      traefik.enable: true
+      traefik.http.routers.windmill_secure.entrypoints: ${TRAEFIK_ENDPOINT_HTTPS_NAME}
+      traefik.http.routers.windmill_secure.rule: Host(`${SUB_DOMAIN_NAME:-windmill}.${DOMAIN_NAME}`)
+      traefik.http.routers.windmill_secure.tls.certresolver: ${TRAEFIK_LETS_ENCRYPT_RESOLVER:-http_resolver_staging}
+      traefik.http.routers.windmill.entrypoints: ${TRAEFIK_ENDPOINT_HTTP_NAME}
+      traefik.http.routers.windmill.rule: Host(`${SUB_DOMAIN_NAME:-windmill}.${DOMAIN_NAME}`)
+      traefik.http.services.windmill.loadbalancer.server.port: 8000
+
+  windmill_worker:
+    image: ${WM_IMAGE}
+    pull_policy: always
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: "1"
+          memory: 2048M
+          # for GB, use syntax '2Gi'
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - BASE_URL=${BASE_URL}
+      - RUST_LOG=${RUST_LOG}
+      - MODE=worker
+      - WORKER_GROUP=${WORKER_GROUP}
+      - KEEP_JOB_DIR=${KEEP_JOB_DIR}
+    # to mount the worker folder to debug, KEEP_JOB_DIR=true and mount /tmp/windmill
+    volumes:
+      # mount the docker socket to allow to run docker containers from within the workers
+      - /var/run/docker.sock:/var/run/docker.sock
+      - worker_dependency_cache:/tmp/windmill/cache
+      - worker_logs:/tmp/windmill/logs
+    logging: *default-logging
+
+  ## This worker is specialized for "native" jobs. Native jobs run in-process and thus are much more lightweight than other jobs
+  windmill_worker_native:
+    # Use ghcr.io/windmill-labs/windmill-ee:main for the ee
+    image: ${WM_IMAGE}
+    pull_policy: always
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "1"
+          memory: 2048M
+          # for GB, use syntax '2Gi'
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - MODE=worker
+      - WORKER_GROUP=native
+      - NUM_WORKERS=8
+      - SLEEP_QUEUE=200
+    volumes:
+      - worker_logs:/tmp/windmill/logs
+    logging: *default-logging
+  # This worker is specialized for reports or scraping jobs. It is assigned the "reports" worker group which has an init script that installs chromium and can be targeted by using the "chromium" worker tag.
+  # windmill_worker_reports:
+  #   image: ${WM_IMAGE}
+  #   pull_policy: always
+  #   deploy:
+  #     replicas: 1
+  #     resources:
+  #       limits:
+  #         cpus: "1"
+  #         memory: 2048M
+  #         # for GB, use syntax '2Gi'
+  #   restart: unless-stopped
+  #   environment:
+  #     - DATABASE_URL=${DATABASE_URL}
+  #     - MODE=worker
+  #     - WORKER_GROUP=reports
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   # to mount the worker folder to debug, KEEP_JOB_DIR=true and mount /tmp/windmill
+  #   volumes:
+  #     # mount the docker socket to allow to run docker containers from within the workers
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - worker_dependency_cache:/tmp/windmill/cache
+  #     - worker_logs:/tmp/windmill/logs
+
+  # The indexer powers full-text job and log search, an EE feature.
+  windmill_indexer:
+    image: ${WM_IMAGE}
+    pull_policy: always
+    deploy:
+      replicas: 0 # set to 1 to enable full-text job and log search
+    restart: unless-stopped
+    expose:
+      - 8002
+    environment:
+      - PORT=8002
+      - DATABASE_URL=${DATABASE_URL}
+      - MODE=indexer
+    volumes:
+      - windmill_index:/tmp/windmill/search
+      - worker_logs:/tmp/windmill/logs
+    logging: *default-logging
+
+  lsp:
+    image: ghcr.io/windmill-labs/windmill-lsp:latest
+    pull_policy: always
+    restart: unless-stopped
+    expose:
+      - 3001
+    volumes:
+      - lsp_cache:/pyls/.cache
+    logging: *default-logging
+
+  multiplayer:
+    image: ghcr.io/windmill-labs/windmill-multiplayer:latest
+    deploy:
+      replicas: 0 # Set to 1 to enable multiplayer, only available on Enterprise Edition
+    restart: unless-stopped
+    expose:
+      - 3002
+    logging: *default-logging
+
+volumes:
+  worker_dependency_cache: null
+  worker_logs: null
+  windmill_index: null
+  lsp_cache: null

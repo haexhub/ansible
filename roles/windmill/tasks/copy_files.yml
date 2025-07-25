@@ -1,0 +1,9 @@
+- name: create directory if not exists
+  ansible.builtin.file:
+    path: "{{ windmill.app_directory }}"
+    state: directory
+
+- name: copy windmill files
+  ansible.builtin.copy:
+    src: roles/windmill/files/
+    dest: "{{ windmill.app_directory }}"

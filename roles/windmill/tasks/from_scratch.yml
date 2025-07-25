@@ -1,0 +1,20 @@
+---
+- name: check if windmill directory exists
+  ansible.builtin.stat:
+    path: "{{ windmill.app_directory }}"
+  register: windmill_directory
+
+- name: stop and remove windmill container
+  block:
+    - name: stop windmill container
+      community.docker.docker_compose_v2:
+        project_src: "{{ windmill.app_directory }}"
+        state: absent
+        remove_volumes: true
+      ignore_errors: true
+
+    - name: remove directory
+      ansible.builtin.file:
+        path: "{{ windmill.app_directory }}"
+        state: absent
+  when: windmill_directory.stat.exists and (windmill.from_scratch == true or from_scratch == true)

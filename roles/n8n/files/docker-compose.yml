@@ -6,57 +6,81 @@ networks:
   traefik:
     name: ${TRAEFIK_NETWORK_NAME:-proxy}
     external: true
+
+  postgres:
+    external: true
   n8n:
 
 services:
-  postgres:
-    image: postgres:16
-    restart: unless-stopped
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_NON_ROOT_USER=${POSTGRES_NON_ROOT_USER}
-      - POSTGRES_NON_ROOT_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
-    volumes:
-      - db_storage:/var/lib/postgresql/data
-      #- ./init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}",
-        ]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-    networks:
-      - n8n
+  #postgres:
+  #  image: postgres:16
+  #  restart: unless-stopped
+  #  environment:
+  #    - POSTGRES_USER=${POSTGRES_USER}
+  #    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #    - POSTGRES_DB=${POSTGRES_DB}
+  #    - POSTGRES_NON_ROOT_USER=${POSTGRES_NON_ROOT_USER}
+  #    - POSTGRES_NON_ROOT_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
+  #  volumes:
+  #    - db_storage:/var/lib/postgresql/data
+  #    #- ./init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
+  #  healthcheck:
+  #    test:
+  #      [
+  #        "CMD-SHELL",
+  #        "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}",
+  #      ]
+  #    interval: 5s
+  #    timeout: 5s
+  #    retries: 10
+  #  networks:
+  #    - n8n
 
+  n8n-db-setup:
+    image: ${POSTGRES_IMAGE:-postgres}:${POSTGRES_IMAGE_TAG:-latest} # Nutzt das gleiche Postgres-Image
+    networks:
+      - postgres
+    environment:
+      # Die Zugangsdaten zum Admin-Benutzer deiner zentralen Postgres-Instanz
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+
+    command: >
+      bash -c "
+        # Warte, bis Postgres erreichbar ist
+        until pg_isready -h postgres -p 5432; do
+          echo 'Warte auf Postgres...'
+          sleep 2
+        done
+
+        # Führe SQL aus, um DB zu erstellen (nur wenn sie nicht existieren)
+        psql -h postgres -U postgres -tc \"SELECT 1 FROM pg_database WHERE datname = '${N8N_DB_NAME}'\" | grep -q 1 ||
+        psql -h postgres -U postgres -c \"CREATE DATABASE ${N8N_DB_NAME}\"
+
+        
+        #psql -h postgres -p 5432 -U postgres -d postgres -c \"CREATE DATABASE ${N8N_DB_NAME};\"
+      "
   n8n:
-    image: docker.n8n.io/n8nio/n8n
+    build: .
     restart: unless-stopped
     environment:
-      - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=postgres
-      - DB_POSTGRESDB_PORT=5432
-      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
-      - DB_POSTGRESDB_USER=${POSTGRES_USER}
-      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
-      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
-      - N8N_RUNNERS_ENABLED=true
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: ${N8N_DB_NAME}
+      DB_POSTGRESDB_USER: ${POSTGRES_USER}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: true
+      N8N_RUNNERS_ENABLED: true
+      NODE_FUNCTION_ALLOW_EXTERNAL: "*"
+      NODE_FUNCTION_ALLOW_BUILTIN: "*"
     ports:
       - 5678:5678
-    links:
-      - postgres
     volumes:
       - n8n_storage:/home/node/.n8n
-    depends_on:
-      postgres:
-        condition: service_healthy
     networks:
       - traefik
       - n8n
+      - postgres
     labels:
       traefik.enable: true
       traefik.docker.network: ${TRAEFIK_NETWORK_NAME:-proxy}

@@ -60,9 +60,3 @@ haex_space:
       sub_domain_name: git
       image_tag: latest-rootless
       image: docker.gitea.com/gitea
-
-    n8n:
-      from_scratch: true
-      app_directory: "{{ app_directory }}/n8n"
-      sub_domain_name: n8n
-      image: docker.n8n.io/n8nio/n8n

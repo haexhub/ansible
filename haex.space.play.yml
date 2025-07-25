@@ -16,9 +16,9 @@
     # - vim_debian
     # - traefik
     # - portainer
-    - postgres
-    - nocodb
-    - gitea
+    # - postgres
+    # - nocodb
+    # - gitea
     # - directus
     # - haexspace
-    # - n8n
+    - n8n
